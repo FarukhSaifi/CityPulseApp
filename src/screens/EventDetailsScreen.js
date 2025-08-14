@@ -4,11 +4,14 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Linking,
+  Platform,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import MapView, { Marker } from "react-native-maps";
 import { useAppContext } from "../context/AppContext";
 import { getEventById } from "../utils/api";
 import i18n from "../utils/i18n";
@@ -44,6 +47,32 @@ const EventDetailsScreen = ({ route, navigation }) => {
 
   const handleShare = () => {
     Alert.alert("Share", "Sharing functionality would be implemented here");
+  };
+
+  const handleDirections = () => {
+    if (!event) return;
+    const hasCoords =
+      typeof event.latitude === "number" && typeof event.longitude === "number";
+    if (hasCoords) {
+      const url = Platform.select({
+        ios: `http://maps.apple.com/?daddr=${event.latitude},${event.longitude}`,
+        android: `geo:${event.latitude},${event.longitude}?q=${
+          event.latitude
+        },${event.longitude}(${encodeURIComponent(
+          event.venue || event.name || "Event"
+        )})`,
+        default: `https://www.google.com/maps/search/?api=1&query=${event.latitude},${event.longitude}`,
+      });
+      Linking.openURL(url);
+    } else if (event.venue || event.city) {
+      const query = encodeURIComponent(
+        `${event.venue || ""} ${event.city || ""}`
+      );
+      const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
+      Linking.openURL(url);
+    } else {
+      Alert.alert("Directions", "Location not available for this event.");
+    }
   };
 
   if (loading) {
@@ -307,11 +336,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
                 styles.rounded,
                 styles["items-center"],
                 isFavorite(event.id)
-                  ? [
-                      styles["bg-red-100"],
-                      styles.border,
-                      styles["border-red-300"],
-                    ]
+                  ? [styles.border, styles["border-red-300"]]
                   : styles["bg-blue-500"],
               ]}
             >
@@ -331,6 +356,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
             </TouchableOpacity>
 
             <TouchableOpacity
+              onPress={handleDirections}
               style={[
                 styles["bg-gray-100"],
                 styles["py-4"],
@@ -350,6 +376,29 @@ const EventDetailsScreen = ({ route, navigation }) => {
               </Text>
             </TouchableOpacity>
           </View>
+
+          {/* Map Preview below actions */}
+          {event?.latitude != null && event?.longitude != null && (
+            <View style={[styles["mt-4"]]}>
+              <MapView
+                style={[styles["w-full"], styles["h-64"], styles.rounded]}
+                initialRegion={{
+                  latitude: event.latitude,
+                  longitude: event.longitude,
+                  latitudeDelta: 0.01,
+                  longitudeDelta: 0.01,
+                }}
+                pointerEvents="none"
+              >
+                <Marker
+                  coordinate={{
+                    latitude: event.latitude,
+                    longitude: event.longitude,
+                  }}
+                />
+              </MapView>
+            </View>
+          )}
         </View>
       </ScrollView>
     </View>
