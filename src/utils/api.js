@@ -9,6 +9,10 @@ const mapTmEventToApp = (tmEvent) => {
   const time = tmEvent?.dates?.start?.localTime || "";
   const venue = tmEvent?._embedded?.venues?.[0]?.name || "";
   const city = tmEvent?._embedded?.venues?.[0]?.city?.name || "";
+  const latitudeStr = tmEvent?._embedded?.venues?.[0]?.location?.latitude;
+  const longitudeStr = tmEvent?._embedded?.venues?.[0]?.location?.longitude;
+  const latitude = latitudeStr != null ? Number(latitudeStr) : undefined;
+  const longitude = longitudeStr != null ? Number(longitudeStr) : undefined;
   const priceRange = tmEvent?.priceRanges?.[0];
   const price = priceRange
     ? `${priceRange.min ?? ""}-${priceRange.max ?? ""} ${
@@ -27,6 +31,8 @@ const mapTmEventToApp = (tmEvent) => {
     time,
     venue,
     city,
+    latitude,
+    longitude,
     price,
     description,
     image,
