@@ -25,6 +25,8 @@ export const AppProvider = ({ children }) => {
     "en"
   );
   const [theme, setTheme] = usePersistedState(STORAGE_KEYS.THEME, "light");
+  const [loginState, setLoginState] = useState(false);
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [isRTL, setIsRTL] = useState(false);
   const { favorites, toggleFavorite, isFavorite, clearFavorites } =
     useFavorites();
@@ -42,6 +44,10 @@ export const AppProvider = ({ children }) => {
     await setTheme(newTheme);
   };
 
+  const setBiometric = async (value) => {
+    setBiometricEnabled(!!value);
+  };
+
   const value = useMemo(
     () => ({
       language,
@@ -53,8 +59,20 @@ export const AppProvider = ({ children }) => {
       theme,
       changeTheme,
       isRTL,
+      loginState,
+      setLoginState,
+      biometricEnabled,
+      setBiometric,
     }),
-    [language, favorites, isFavorite, theme, isRTL]
+    [
+      language,
+      favorites,
+      isFavorite,
+      theme,
+      isRTL,
+      loginState,
+      biometricEnabled,
+    ]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

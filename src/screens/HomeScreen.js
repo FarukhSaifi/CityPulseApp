@@ -225,7 +225,7 @@ const HomeScreen = ({ navigation }) => {
         <TouchableOpacity
           onPress={handleSearch}
           style={[
-            styles["bg-blue-500"],
+            styles["bg-primary"],
             styles.rounded,
             styles["py-3"],
             styles["items-center"],
