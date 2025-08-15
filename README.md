@@ -97,188 +97,116 @@ App.js
 
 - If you change storage keys or structure, consider adding a migration in `storage.js`.
 
-# City Pulse - Local Events Explorer
+# City Pulse App
 
-A React Native app for discovering and exploring local events in your area. Built with Expo, React Navigation, and styled with Tailwind CSS (NativeWind).
+A local events discovery app that helps you find exciting events in your area.
 
 ## Features
 
-- 🔍 **Event Search**: Search for events by keyword and city
-- 📱 **Event Details**: View comprehensive event information
-- ❤️ **Favorites**: Save and manage your favorite events
-- 🌐 **Internationalization**: Support for English and Arabic (RTL layout)
-- 🎨 **Modern UI**: Beautiful, responsive design with Tailwind CSS
-- 📱 **Cross-platform**: Works on both iOS and Android
+- **Event Discovery**: Browse and search local events
+- **Favorites**: Save and manage your favorite events
+- **User Authentication**: Secure login and signup system
+- **Biometric Login**: Support for fingerprint and face recognition
+- **Multi-language**: English and Arabic support
+- **Theme Support**: Light and dark mode
+- **Local Storage**: Data persistence using AsyncStorage
 
-## Screens
+## Authentication System
 
-1. **Splash Screen**: App introduction with loading animation
-2. **Home Screen**: Search for events and view results
-3. **Event Details**: Full event information and actions
-4. **Favorites**: Manage your saved events
-5. **Profile**: User settings and app preferences
+The app includes a robust authentication system with both Firebase and mock authentication support:
 
-## Tech Stack
+### Mock Authentication (Default)
 
-- **React Native** with Expo
-- **React Navigation** for navigation
-- **NativeWind** (Tailwind CSS for React Native)
-- **AsyncStorage** for local data persistence
-- **i18n-js** for internationalization
-- **Expo Vector Icons** for icons
+- **Demo Account**: `demo@citypulse.app` / `password123`
+- **Test Account**: `test@citypulse.app` / `test123`
+- **Admin Account**: `admin@citypulse.app` / `admin123`
 
-## Installation
+### Features
 
-1. **Clone the repository**
+- User registration with email validation
+- Secure password requirements (minimum 6 characters)
+- Local data persistence
+- **Face ID & Touch ID Support**: Secure biometric authentication
+- Automatic fallback to mock auth if Firebase is not configured
 
-   ```bash
-   git clone <repository-url>
-   cd CityPulseApp
-   ```
+## Setup Instructions
 
-2. **Install dependencies**
+1. **Install Dependencies**
 
    ```bash
    npm install
    ```
 
-3. **Start the development server**
+2. **Run the App**
 
    ```bash
-   npm start
+   npx expo start
    ```
 
-4. **Run on device/simulator**
-   - Press `i` for iOS simulator
-   - Press `a` for Android emulator
-   - Scan QR code with Expo Go app on your device
+3. **Authentication Testing**
+   - Use any of the mock accounts above to login
+   - Create new accounts through the signup page
+   - **Face ID Setup**:
+     - Go to Profile → Biometric Login → Toggle ON
+     - Verify your identity when prompted
+     - Face ID will now auto-prompt on app launch
 
 ## Project Structure
 
 ```
 src/
-├── components/          # Reusable UI components
-├── screens/            # App screens
-│   ├── SplashScreen.js
-│   ├── HomeScreen.js
-│   ├── EventDetailsScreen.js
-│   ├── FavoritesScreen.js
-│   └── ProfileScreen.js
-├── navigation/         # Navigation configuration
-│   ├── AppNavigator.js
-│   └── MainTabNavigator.js
-├── context/            # React Context for state management
-│   └── AppContext.js
-├── utils/              # Utility functions
-│   ├── api.js          # Mock API service
-│   └── i18n.js        # Internationalization
-└── assets/             # Images and other assets
+├── bridge/           # Business logic and hooks
+│   ├── hooks.js     # Custom hooks including useAuth
+│   ├── storage.js   # Local storage utilities
+│   └── constants.js # App constants
+├── components/       # Reusable UI components
+├── context/         # React context providers
+├── navigation/      # Navigation configuration
+├── screens/         # App screens
+│   └── auth/       # Authentication screens
+└── utils/           # Utility functions and styles
 ```
 
-## Configuration
+## Assumptions Made
 
-### Tailwind CSS
+1. **Local Data Storage**: User data is stored locally using AsyncStorage for privacy and offline functionality
+2. **Mock Authentication**: Provides a working authentication system without requiring external services
+3. **Fallback Strategy**: Firebase authentication is attempted first, with automatic fallback to mock auth
+4. **Biometric Support**: Optional biometric authentication for enhanced security
+5. **Responsive Design**: UI adapts to different screen sizes and orientations
 
-The app uses NativeWind for styling. The configuration is in `tailwind.config.js`.
+## Dependencies
 
-### Internationalization
+- React Native & Expo
+- AsyncStorage for local data persistence
+- Expo Local Authentication for biometric features
+- React Navigation for routing
+- Expo Linear Gradient for UI enhancements
 
-- English and Arabic support
-- RTL layout for Arabic
-- Language switching in Profile screen
+## Face ID & Touch ID Configuration
 
-### API Integration
+### iOS Setup
 
-Configured with Ticketmaster out of the box. See API Configuration above for keys.
+1. **Enable in App**: Go to Profile → Biometric Login → Toggle ON
+2. **Verify Identity**: Complete Face ID/Touch ID verification when prompted
+3. **Auto-Login**: Face ID will automatically prompt on app launch when enabled
 
-## Features in Detail
+### Android Setup
 
-### Event Search
+1. **Enable in App**: Go to Profile → Biometric Login → Toggle ON
+2. **Verify Identity**: Complete fingerprint verification when prompted
+3. **Auto-Login**: Fingerprint will automatically prompt on app launch when enabled
 
-- Search by keyword (event name, description, category)
-- Filter by city
-- Real-time results with loading states
+### Security Features
 
-### Event Management
+- Biometric data is handled by the device's secure enclave
+- No biometric data is stored in the app
+- Fallback to passcode/pattern is available
+- Settings can be changed in Profile screen
 
-- Add/remove events from favorites
-- Persistent storage using AsyncStorage
-- Favorite count tracking
+## Security Notes
 
-### User Experience
-
-- Smooth navigation transitions
-- Loading states and error handling
-- Responsive design for different screen sizes
-- Pull-to-refresh functionality
-
-## Customization
-
-### Colors
-
-Update the color scheme in `tailwind.config.js`:
-
-```javascript
-colors: {
-  primary: '#3B82F6',    // Main brand color
-  secondary: '#10B981',  // Secondary actions
-  accent: '#F59E0B',     // Accent elements
-  // ... more colors
-}
-```
-
-### Icons
-
-The app uses Expo Vector Icons. Change icons in the components by updating the `name` prop.
-
-### Languages
-
-Add new languages in `src/utils/i18n.js`:
-
-```javascript
-const i18n = new I18n({
-  en: {
-    /* English translations */
-  },
-  ar: {
-    /* Arabic translations */
-  },
-  fr: {
-    /* French translations */
-  }, // Add new language
-});
-```
-
-## Building for Production
-
-1. **Configure app.json** with your app details
-2. **Build the app**:
-
-   ```bash
-   expo build:android  # For Android
-   expo build:ios      # For iOS
-   ```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
-
-## Support
-
-For support and questions:
-
-- Create an issue in the repository
-- Check the Expo documentation
-- Review React Native best practices
-
----
-
-**Note**: This app currently uses mock data for demonstration purposes. In production, integrate with real event APIs like Ticketmaster Discovery API or similar services.
+- Passwords are stored locally (mock system only)
+- Biometric data is handled by the device's secure enclave
+- No sensitive data is transmitted to external servers in mock mode
+- Firebase integration provides enterprise-grade security when configured

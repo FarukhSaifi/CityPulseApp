@@ -270,7 +270,7 @@ const FavoritesScreen = ({ navigation }) => {
             <TouchableOpacity
               onPress={() => navigation.navigate("Home")}
               style={[
-                styles["bg-blue-500"],
+                styles["bg-primary"],
                 styles["px-6"],
                 styles["py-3"],
                 styles.rounded,

@@ -18,14 +18,14 @@ const Button = ({
   ];
 
   const variantStyles = {
-    primary: styles["bg-blue-500"],
+    primary: styles["bg-primary"],
     secondary: styles["bg-gray-500"],
     success: styles["bg-green-500"],
     danger: styles["bg-red-500"],
     outline: combineStyles(
       styles["bg-transparent"],
       styles.border,
-      styles["border-blue-500"]
+      styles["border-primary"]
     ),
   };
 
@@ -40,7 +40,7 @@ const Button = ({
     secondary: combineStyles(styles["text-white"], styles["font-semibold"]),
     success: combineStyles(styles["text-white"], styles["font-semibold"]),
     danger: combineStyles(styles["text-white"], styles["font-semibold"]),
-    outline: combineStyles(styles["text-blue-500"], styles["font-semibold"]),
+    outline: combineStyles(styles["text-primary"], styles["font-semibold"]),
   };
 
   const textSizeStyles = {

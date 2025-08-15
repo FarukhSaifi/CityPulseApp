@@ -1,16 +1,20 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import * as LocalAuthentication from "expo-local-authentication";
 import React from "react";
 import {
   Alert,
+  Linking,
   ScrollView,
   Switch,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { useAuth } from "../bridge/hooks";
 import { useAppContext } from "../context/AppContext";
 import i18n from "../utils/i18n";
-import { styles } from "../utils/styles";
+import { colors, styles } from "../utils/styles";
 
 const SettingItem = ({ icon, title, subtitle, onPress, rightComponent }) => {
   return (
@@ -33,13 +37,13 @@ const SettingItem = ({ icon, title, subtitle, onPress, rightComponent }) => {
         <View style={[styles["flex-row"], styles["items-center"], styles.flex]}>
           <View
             style={[
-              styles["bg-blue-100"],
+              styles["bg-primary-light"],
               styles["p-2"],
               styles.rounded,
               styles["mr-4"],
             ]}
           >
-            <Ionicons name={icon} size={24} color="#3B82F6" />
+            <Ionicons name={icon} size={24} color={colors.primary} />
           </View>
           <View style={styles.flex}>
             <Text
@@ -73,6 +77,8 @@ const SettingItem = ({ icon, title, subtitle, onPress, rightComponent }) => {
 };
 
 const ProfileScreen = () => {
+  const navigation = useNavigation();
+  const { user, logout } = useAuth();
   const {
     language,
     changeLanguage,
@@ -80,6 +86,9 @@ const ProfileScreen = () => {
     changeTheme,
     favorites,
     clearFavorites,
+    biometricEnabled,
+    setBiometric,
+    setLoginState,
   } = useAppContext();
 
   const handleLanguageChange = () => {
@@ -90,6 +99,62 @@ const ProfileScreen = () => {
   const handleThemeChange = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     changeTheme(newTheme);
+  };
+
+  const handleBiometricToggle = async () => {
+    try {
+      if (!biometricEnabled) {
+        // Enabling biometrics - check if device supports it
+        const hasHardware = await LocalAuthentication.hasHardwareAsync();
+        const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+
+        if (!hasHardware) {
+          Alert.alert(
+            "Biometrics Not Supported",
+            "This device does not support biometric authentication."
+          );
+          return;
+        }
+
+        if (!isEnrolled) {
+          Alert.alert(
+            "Biometrics Not Set Up",
+            "Please set up Face ID or Touch ID in your device settings first.",
+            [
+              { text: "Cancel", style: "cancel" },
+              { text: "Open Settings", onPress: () => Linking.openSettings() },
+            ]
+          );
+          return;
+        }
+
+        // Test biometric authentication
+        const result = await LocalAuthentication.authenticateAsync({
+          promptMessage: "Verify your identity to enable biometric login",
+          disableDeviceFallback: false,
+        });
+
+        if (result.success) {
+          await setBiometric(true);
+          Alert.alert("Success", "Biometric login has been enabled!");
+        } else {
+          Alert.alert(
+            "Authentication Failed",
+            "Please try again to enable biometric login."
+          );
+        }
+      } else {
+        // Disabling biometrics
+        await setBiometric(false);
+        Alert.alert("Disabled", "Biometric login has been disabled.");
+      }
+    } catch (error) {
+      console.error("Biometric toggle error:", error);
+      Alert.alert(
+        "Error",
+        "An error occurred while updating biometric settings."
+      );
+    }
   };
 
   const handleClearFavorites = () => {
@@ -108,6 +173,16 @@ const ProfileScreen = () => {
         },
       ]
     );
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      await setLoginState(false);
+      navigation.replace("Login");
+    } catch (error) {
+      Alert.alert("Logout Failed", "An error occurred during logout");
+    }
   };
 
   const handleAbout = () => {
@@ -147,13 +222,13 @@ const ProfileScreen = () => {
           <View style={styles["items-center"]}>
             <View
               style={[
-                styles["bg-blue-100"],
+                styles["bg-primary-light"],
                 styles["p-4"],
                 styles.rounded,
                 styles["mb-4"],
               ]}
             >
-              <Ionicons name="person" size={48} color="#3B82F6" />
+              <Ionicons name="person" size={48} color={colors.primary} />
             </View>
             <Text
               style={[
@@ -163,8 +238,19 @@ const ProfileScreen = () => {
                 styles["mb-2"],
               ]}
             >
-              Welcome to City Pulse
+              {user ? `Welcome, ${user.name}!` : "Welcome to City Pulse"}
             </Text>
+            {user && (
+              <Text
+                style={[
+                  styles["text-gray-600"],
+                  styles["text-center"],
+                  styles["mb-2"],
+                ]}
+              >
+                {user.email}
+              </Text>
+            )}
             <Text style={[styles["text-gray-600"], styles["text-center"]]}>
               Discover and explore local events in your area
             </Text>
@@ -196,7 +282,7 @@ const ProfileScreen = () => {
               <View style={[styles["flex-row"], styles["items-center"]]}>
                 <Text
                   style={[
-                    styles["text-blue-600"],
+                    styles["text-primary"],
                     styles["font-medium"],
                     styles["mr-2"],
                   ]}
@@ -217,7 +303,26 @@ const ProfileScreen = () => {
               <Switch
                 value={theme === "dark"}
                 onValueChange={handleThemeChange}
-                trackColor={{ false: "#D1D5DB", true: "#3B82F6" }}
+                trackColor={{ false: "#D1D5DB", true: colors.primary }}
+                thumbColor={"#FFFFFF"}
+              />
+            }
+          />
+
+          <SettingItem
+            icon="finger-print"
+            title="Biometric Login"
+            subtitle={
+              biometricEnabled
+                ? "Face ID / Touch ID enabled"
+                : "Use Face ID or Touch ID to login"
+            }
+            onPress={handleBiometricToggle}
+            rightComponent={
+              <Switch
+                value={biometricEnabled}
+                onValueChange={handleBiometricToggle}
+                trackColor={{ false: "#D1D5DB", true: colors.primary }}
                 thumbColor={"#FFFFFF"}
               />
             }
@@ -249,7 +354,7 @@ const ProfileScreen = () => {
               <View style={[styles["flex-row"], styles["items-center"]]}>
                 <Text
                   style={[
-                    styles["text-blue-600"],
+                    styles["text-primary"],
                     styles["font-medium"],
                     styles["mr-2"],
                   ]}
@@ -295,6 +400,13 @@ const ProfileScreen = () => {
             title="About City Pulse"
             subtitle="Version 1.0.0"
             onPress={handleAbout}
+          />
+
+          <SettingItem
+            icon="log-out"
+            title="Logout"
+            subtitle="Sign out from this device"
+            onPress={handleLogout}
           />
         </View>
 

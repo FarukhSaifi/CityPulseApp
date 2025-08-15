@@ -2,7 +2,10 @@ import { StyleSheet } from "react-native";
 
 // Colors
 const colors = {
-  primary: "#3B82F6",
+  primary: "#5B3CFB",
+  primaryDark: "#4F37E8",
+  primaryDarker: "#402FCB",
+  primaryLight: "#E9E5FF",
   secondary: "#10B981",
   accent: "#F59E0B",
   background: "#F8FAFC",
@@ -25,7 +28,7 @@ const colors = {
   },
   blue: {
     100: "#DBEAFE",
-    500: "#3B82F6",
+    500: "#5B3CFB",
     600: "#2563EB",
     700: "#1D4ED8",
     800: "#1E40AF",
@@ -175,6 +178,9 @@ export const styles = StyleSheet.create({
   "bg-red-600": { backgroundColor: colors.red[600] },
   "bg-red-700": { backgroundColor: colors.red[700] },
   "bg-transparent": { backgroundColor: "transparent" },
+  // Primary shortcuts
+  "bg-primary": { backgroundColor: colors.primary },
+  "bg-primary-light": { backgroundColor: colors.primaryLight },
 
   // Text colors
   "text-white": { color: colors.white },
@@ -189,6 +195,9 @@ export const styles = StyleSheet.create({
   "text-green-600": { color: colors.green[600] },
   "text-red-600": { color: colors.red[600] },
   "text-red-700": { color: colors.red[700] },
+  // Primary shortcuts
+  "text-primary": { color: colors.primary },
+  "text-primary-dark": { color: colors.primaryDark },
 
   // Typography
   "text-xs": { ...typography.xs },
@@ -213,6 +222,8 @@ export const styles = StyleSheet.create({
   "border-blue-500": { borderWidth: 1, borderColor: colors.blue[500] },
   "border-t": { borderTopWidth: 1, borderTopColor: colors.border },
   "border-b": { borderBottomWidth: 1, borderBottomColor: colors.border },
+  // Primary shortcuts
+  "border-primary": { borderWidth: 1, borderColor: colors.primary },
 
   // Border radius
   rounded: { borderRadius: 6 },
@@ -272,3 +283,8 @@ export const combineStyles = (...styleObjects) => {
 
 // Export colors for use in components
 export { colors };
+
+// Export gradients to unify brand usage
+export const gradients = {
+  primary: [colors.primary, colors.primaryDark, colors.primaryDarker],
+};

@@ -15,7 +15,7 @@ import MapView, { Marker } from "react-native-maps";
 import { useAppContext } from "../context/AppContext";
 import { getEventById } from "../utils/api";
 import i18n from "../utils/i18n";
-import { styles } from "../utils/styles";
+import { colors, styles } from "../utils/styles";
 
 const EventDetailsScreen = ({ route, navigation }) => {
   const { eventId } = route.params;
@@ -85,7 +85,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
           styles["items-center"],
         ]}
       >
-        <ActivityIndicator size="large" color="#3B82F6" />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={[styles["text-gray-600"], styles["mt-4"]]}>
           {i18n.t("loading")}
         </Text>
@@ -196,7 +196,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
           {/* Category Badge */}
           <View
             style={[
-              styles["bg-blue-100"],
+              styles["bg-primary-light"],
               styles["px-3"],
               styles["py-2"],
               styles.rounded,
@@ -204,7 +204,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
               styles["mb-4"],
             ]}
           >
-            <Text style={[styles["text-blue-800"], styles["font-medium"]]}>
+            <Text style={[styles["text-primary-dark"], styles["font-medium"]]}>
               {event.category}
             </Text>
           </View>
@@ -221,7 +221,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
                   styles["mr-4"],
                 ]}
               >
-                <Ionicons name="calendar" size={24} color="#3B82F6" />
+                <Ionicons name="calendar" size={24} color={colors.primary} />
               </View>
               <View>
                 <Text style={[styles["text-gray-600"], styles["text-sm"]]}>
@@ -244,7 +244,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
                   styles["mr-4"],
                 ]}
               >
-                <Ionicons name="time" size={24} color="#3B82F6" />
+                <Ionicons name="time" size={24} color={colors.primary} />
               </View>
               <View>
                 <Text style={[styles["text-gray-600"], styles["text-sm"]]}>
@@ -268,7 +268,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
                   styles["mr-4"],
                 ]}
               >
-                <Ionicons name="location" size={24} color="#3B82F6" />
+                <Ionicons name="location" size={24} color={colors.primary} />
               </View>
               <View>
                 <Text style={[styles["text-gray-600"], styles["text-sm"]]}>
@@ -292,7 +292,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
                   styles["mr-4"],
                 ]}
               >
-                <Ionicons name="card" size={24} color="#3B82F6" />
+                <Ionicons name="card" size={24} color={colors.primary} />
               </View>
               <View>
                 <Text style={[styles["text-gray-600"], styles["text-sm"]]}>
@@ -337,7 +337,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
                 styles["items-center"],
                 isFavorite(event.id)
                   ? [styles.border, styles["border-red-300"]]
-                  : styles["bg-blue-500"],
+                  : styles["bg-primary"],
               ]}
             >
               <Text

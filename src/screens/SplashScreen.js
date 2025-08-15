@@ -2,20 +2,23 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
-import { styles } from "../utils/styles";
+import { useAppContext } from "../context/AppContext";
+import { gradients, styles } from "../utils/styles";
 
 const SplashScreen = ({ navigation }) => {
+  const { loginState } = useAppContext();
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace("MainTabs");
-    }, 1500);
+      if (loginState) navigation.replace("MainTabs");
+      else navigation.replace("Login");
+    }, 1200);
 
     return () => clearTimeout(timer);
-  }, [navigation]);
+  }, [navigation, loginState]);
 
   return (
     <LinearGradient
-      colors={["#3B82F6", "#1E40AF", "#1E3A8A"]}
+      colors={gradients.primary}
       style={[styles.flex, styles["justify-center"], styles["items-center"]]}
     >
       <View style={styles["items-center"]}>
