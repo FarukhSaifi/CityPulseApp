@@ -23,6 +23,7 @@ const mapTmEventToApp = (tmEvent) => {
   const segment = tmEvent?.classifications?.[0]?.segment?.name || "";
   const genre = tmEvent?.classifications?.[0]?.genre?.name || "";
   const category = genre || segment || "";
+  const url = tmEvent?.url || "";
 
   return {
     id,
@@ -37,6 +38,7 @@ const mapTmEventToApp = (tmEvent) => {
     description,
     image,
     category,
+    url,
   };
 };
 

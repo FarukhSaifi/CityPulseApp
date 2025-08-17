@@ -79,6 +79,9 @@ export const styles = StyleSheet.create({
   "flex-1": { flex: 1 },
   "flex-row": { flexDirection: "row" },
   "flex-col": { flexDirection: "column" },
+  // Direction
+  rtl: { direction: "rtl" },
+  ltr: { direction: "ltr" },
   "items-center": { alignItems: "center" },
   "items-start": { alignItems: "flex-start" },
   "items-end": { alignItems: "flex-end" },
@@ -160,6 +163,30 @@ export const styles = StyleSheet.create({
   "mr-4": { marginRight: spacing[4] },
   "mr-6": { marginRight: spacing[6] },
   "mr-8": { marginRight: spacing[8] },
+
+  // Logical start/end spacing (RTL-aware)
+  "ms-1": { marginStart: spacing[1] },
+  "ms-2": { marginStart: spacing[2] },
+  "ms-3": { marginStart: spacing[3] },
+  "ms-4": { marginStart: spacing[4] },
+  "ms-6": { marginStart: spacing[6] },
+  "ms-8": { marginStart: spacing[8] },
+
+  "me-1": { marginEnd: spacing[1] },
+  "me-2": { marginEnd: spacing[2] },
+  "me-3": { marginEnd: spacing[3] },
+  "me-4": { marginEnd: spacing[4] },
+  "me-6": { marginEnd: spacing[6] },
+  "me-8": { marginEnd: spacing[8] },
+
+  "ps-1": { paddingStart: spacing[1] },
+  "ps-2": { paddingStart: spacing[2] },
+  "ps-3": { paddingStart: spacing[3] },
+  "ps-4": { paddingStart: spacing[4] },
+  "pe-1": { paddingEnd: spacing[1] },
+  "pe-2": { paddingEnd: spacing[2] },
+  "pe-3": { paddingEnd: spacing[3] },
+  "pe-4": { paddingEnd: spacing[4] },
 
   // Background colors
   "bg-white": { backgroundColor: colors.white },
@@ -283,7 +310,6 @@ export const combineStyles = (...styleObjects) => {
 
 // Export colors for use in components
 export { colors };
-
 // Export gradients to unify brand usage
 export const gradients = {
   primary: [colors.primary, colors.primaryDark, colors.primaryDarker],

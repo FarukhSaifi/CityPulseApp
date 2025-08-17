@@ -27,20 +27,30 @@ const MainTabNavigator = () => {
             iconName = focused ? "person" : "person-outline";
           }
 
-          return <Ionicons name={iconName} size={size} color={color} />;
+          return (
+            <Ionicons name={iconName} size={focused ? 26 : 22} color={color} />
+          );
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
+        tabBarHideOnKeyboard: true,
         tabBarStyle: {
           backgroundColor: colors.surface,
-          borderTopWidth: 1,
-          borderTopColor: colors.border,
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 60,
+          borderTopWidth: 0,
+          paddingBottom: 10,
+          paddingTop: 8,
+          height: 68,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.06,
+          shadowRadius: 6,
+          elevation: 10,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 4,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: "600",
         },
         headerShown: false,

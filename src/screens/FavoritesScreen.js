@@ -45,7 +45,7 @@ const FavoriteEventCard = ({ event, onPress, onRemove }) => {
               styles["font-semibold"],
               styles["text-gray-800"],
               styles["flex-1"],
-              styles["mr-2"],
+              styles["me-2"],
             ]}
           >
             {event.name}
@@ -59,7 +59,7 @@ const FavoriteEventCard = ({ event, onPress, onRemove }) => {
           style={[styles["flex-row"], styles["items-center"], styles["mb-2"]]}
         >
           <Ionicons name="location" size={16} color="#6B7280" />
-          <Text style={[styles["text-gray-600"], styles["ml-1"]]}>
+          <Text style={[styles["text-gray-600"], styles["ms-1"]]}>
             {event.venue}, {event.city}
           </Text>
         </View>
@@ -68,7 +68,7 @@ const FavoriteEventCard = ({ event, onPress, onRemove }) => {
           style={[styles["flex-row"], styles["items-center"], styles["mb-2"]]}
         >
           <Ionicons name="calendar" size={16} color="#6B7280" />
-          <Text style={[styles["text-gray-600"], styles["ml-1"]]}>
+          <Text style={[styles["text-gray-600"], styles["ms-1"]]}>
             {event.date} at {event.time}
           </Text>
         </View>
@@ -114,7 +114,7 @@ const FavoriteEventCard = ({ event, onPress, onRemove }) => {
 };
 
 const FavoritesScreen = ({ navigation }) => {
-  const { favorites, toggleFavorite, clearFavorites } = useAppContext();
+  const { favorites, toggleFavorite, clearFavorites, isRTL } = useAppContext();
 
   const handleEventPress = (event) => {
     navigation.navigate("EventDetails", { eventId: event.id });
@@ -152,7 +152,13 @@ const FavoritesScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={[styles.flex, styles["bg-gray-50"]]}>
+    <View
+      style={[
+        styles.flex,
+        styles["bg-gray-50"],
+        isRTL ? styles.rtl : styles.ltr,
+      ]}
+    >
       {/* Header */}
       <View
         style={[
@@ -214,7 +220,7 @@ const FavoritesScreen = ({ navigation }) => {
                 styles["text-gray-800"],
                 styles["font-semibold"],
                 styles["text-lg"],
-                styles["ml-2"],
+                styles["ms-2"],
               ]}
             >
               {favorites.length} {favorites.length === 1 ? "Event" : "Events"}

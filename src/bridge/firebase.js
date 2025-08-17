@@ -1,6 +1,12 @@
 import { getApps, initializeApp } from "firebase/app";
 import { fetchSignInMethodsForEmail, getAuth } from "firebase/auth";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  getFirestore,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
 import { CONFIG } from "./config";
 
@@ -36,6 +42,39 @@ export const firebaseDb = () => {
 export const firebaseStorage = () => {
   ensureFirebase();
   return storage;
+};
+
+// Create or update a user profile document in Firestore
+export const upsertUserProfile = async (authUser, extra = {}) => {
+  if (!isFirebaseConfigured() || !authUser?.uid) return;
+  ensureFirebase();
+  const userRef = doc(firebaseDb(), "users", authUser.uid);
+  const data = {
+    uid: authUser.uid,
+    email: authUser.email || null,
+    name: authUser.displayName || extra?.name || null,
+    photoURL: authUser.photoURL || null,
+    provider: extra?.provider || authUser.providerId || "firebase",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    ...extra,
+  };
+  // merge: true so we never overwrite existing fields unintentionally
+  await setDoc(userRef, data, { merge: true });
+};
+
+// Update current user's fields in Firestore (merge)
+export const setUserFields = async (fields) => {
+  if (!isFirebaseConfigured()) return;
+  ensureFirebase();
+  const current = firebaseAuth()?.currentUser;
+  if (!current?.uid) return;
+  const userRef = doc(firebaseDb(), "users", current.uid);
+  await setDoc(
+    userRef,
+    { ...fields, updatedAt: serverTimestamp() },
+    { merge: true }
+  );
 };
 
 // Lightweight connectivity check for Auth/Firestore/Storage
