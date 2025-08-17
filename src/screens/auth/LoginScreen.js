@@ -15,15 +15,18 @@ import {
   ensureFirebase,
   firebaseAuth,
   isFirebaseConfigured,
+  upsertUserProfile,
 } from "../../bridge/firebase";
 import { useAuth } from "../../bridge/hooks";
+import { storage } from "../../bridge/storage";
 import { useAppContext } from "../../context/AppContext";
 import { gradients, styles } from "../../utils/styles";
 
 const mockUser = { email: "demo@citypulse.app", password: "password123" };
 
 const LoginScreen = ({ navigation }) => {
-  const { biometricEnabled, setLoginState, setBiometric } = useAppContext();
+  const { biometricEnabled, setLoginState, setBiometric, isRTL } =
+    useAppContext();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,6 +34,7 @@ const LoginScreen = ({ navigation }) => {
   const [hasHardware, setHasHardware] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
   const [biometricLabel, setBiometricLabel] = useState("Biometrics");
+  const [savedUser, setSavedUser] = useState(null);
 
   const checkBiometricSupport = async () => {
     try {
@@ -72,12 +76,23 @@ const LoginScreen = ({ navigation }) => {
 
   useEffect(() => {
     (async () => {
+      try {
+        const existingUser = await storage.get("auth_user", null);
+        setSavedUser(existingUser);
+      } catch {}
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
       if (!biometricEnabled) return;
 
       // Wait a bit for biometric support to be checked
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       if (!hasHardware || !enrolled) return;
+      // Require an existing saved user profile to allow biometric login
+      if (!savedUser) return;
 
       setCheckingBio(true);
       try {
@@ -99,7 +114,14 @@ const LoginScreen = ({ navigation }) => {
         setCheckingBio(false);
       }
     })();
-  }, [biometricEnabled, biometricLabel, navigation, hasHardware, enrolled]);
+  }, [
+    biometricEnabled,
+    biometricLabel,
+    navigation,
+    hasHardware,
+    enrolled,
+    savedUser,
+  ]);
 
   const handleBiometricLogin = async () => {
     if (!hasHardware) {
@@ -119,6 +141,14 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
 
+    if (!savedUser) {
+      Alert.alert(
+        "No Saved Account",
+        "Please login with your email and password once before using biometric login."
+      );
+      return;
+    }
+
     setCheckingBio(true);
     try {
       const res = await LocalAuthentication.authenticateAsync({
@@ -129,9 +159,6 @@ const LoginScreen = ({ navigation }) => {
 
       if (res.success) {
         await setLoginState(true);
-        try {
-          await setBiometric(true);
-        } catch {}
         navigation.replace("MainTabs");
         return;
       } else if (res.error === "UserCancel") {
@@ -174,7 +201,19 @@ const LoginScreen = ({ navigation }) => {
       try {
         ensureFirebase();
         const auth = firebaseAuth();
-        await signInWithEmailAndPassword(auth, trimmed, password);
+        const cred = await signInWithEmailAndPassword(auth, trimmed, password);
+        try {
+          const fbUser = cred?.user;
+          const userData = {
+            id: fbUser?.uid || Date.now().toString(),
+            email: fbUser?.email || trimmed,
+            name: fbUser?.displayName || trimmed.split("@")[0],
+            createdAt: new Date().toISOString(),
+            provider: "firebase",
+          };
+          await storage.set("auth_user", userData);
+          await upsertUserProfile(fbUser, { name: userData.name });
+        } catch {}
         await setLoginState(true);
         navigation.replace("MainTabs");
         return;
@@ -199,7 +238,13 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={[styles.flex, styles["bg-gray-50"]]}>
+    <View
+      style={[
+        styles.flex,
+        styles["bg-gray-50"],
+        isRTL ? styles.rtl : styles.ltr,
+      ]}
+    >
       <LinearGradient
         colors={gradients.primary}
         style={[
@@ -254,7 +299,8 @@ const LoginScreen = ({ navigation }) => {
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
-            style={[styles.flex, styles["ml-3"]]}
+            style={[styles.flex, styles["ms-3"]]}
+            textAlign={isRTL ? "right" : "left"}
           />
         </View>
 
@@ -276,7 +322,8 @@ const LoginScreen = ({ navigation }) => {
             secureTextEntry
             value={password}
             onChangeText={setPassword}
-            style={[styles.flex, styles["ml-3"]]}
+            style={[styles.flex, styles["ms-3"]]}
+            textAlign={isRTL ? "right" : "left"}
           />
         </View>
 
@@ -296,7 +343,7 @@ const LoginScreen = ({ navigation }) => {
           </Text>
         </TouchableOpacity>
 
-        {hasHardware && (
+        {hasHardware && biometricEnabled && !!savedUser && (
           <TouchableOpacity
             onPress={handleBiometricLogin}
             style={[

@@ -64,8 +64,8 @@ export const useAuth = () => {
 
   const login = useCallback(
     async (email, password) => {
-      // Mock authentication logic
-      const mockUsers = [
+      // Merge built-in demo users with locally created mock users
+      const builtinUsers = [
         {
           email: "demo@citypulse.app",
           password: "password123",
@@ -78,17 +78,27 @@ export const useAuth = () => {
           name: "Admin User",
         },
       ];
+      const storedUsers = (await storage.get("mock_users", [])) || [];
+      const allUsers = [...storedUsers, ...builtinUsers];
 
-      const foundUser = mockUsers.find(
-        (u) => u.email === email && u.password === password
+      const inputEmail = String(email || "")
+        .trim()
+        .toLowerCase();
+      const inputPassword = String(password || "");
+
+      const foundUser = allUsers.find(
+        (u) =>
+          String(u.email || "").toLowerCase() === inputEmail &&
+          String(u.password || "") === inputPassword
       );
 
       if (foundUser) {
         const userData = {
-          id: Date.now().toString(),
+          id: foundUser.id || Date.now().toString(),
           email: foundUser.email,
-          name: foundUser.name,
-          createdAt: new Date().toISOString(),
+          name: foundUser.name || foundUser.email?.split("@")[0] || "User",
+          createdAt: foundUser.createdAt || new Date().toISOString(),
+          provider: "mock",
         };
         await setUser(userData);
         await setIsLoggedIn(true);
@@ -102,8 +112,13 @@ export const useAuth = () => {
 
   const signup = useCallback(async (email, password) => {
     // Check if user already exists
-    const existingUsers = await storage.get("mock_users", []);
-    const userExists = existingUsers.some((u) => u.email === email);
+    const existingUsers = (await storage.get("mock_users", [])) || [];
+    const normalizedEmail = String(email || "")
+      .trim()
+      .toLowerCase();
+    const userExists = existingUsers.some(
+      (u) => String(u.email || "").toLowerCase() === normalizedEmail
+    );
 
     if (userExists) {
       return { success: false, error: "User already exists" };
@@ -112,9 +127,9 @@ export const useAuth = () => {
     // Create new mock user
     const newUser = {
       id: Date.now().toString(),
-      email,
+      email: normalizedEmail,
       password,
-      name: email.split("@")[0], // Use email prefix as name
+      name: normalizedEmail.split("@")[0], // Use email prefix as name
       createdAt: new Date().toISOString(),
     };
 

@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { I18nManager } from "react-native";
 import { STORAGE_KEYS } from "../bridge/constants";
 import { useFavorites, usePersistedState } from "../bridge/hooks";
 import i18n from "../utils/i18n";
@@ -25,11 +26,25 @@ export const AppProvider = ({ children }) => {
     "en"
   );
   const [theme, setTheme] = usePersistedState(STORAGE_KEYS.THEME, "light");
-  const [loginState, setLoginState] = useState(false);
-  const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [loginState, setLoginState] = usePersistedState(
+    STORAGE_KEYS.AUTH_LOGGED_IN,
+    false
+  );
+  const [biometricEnabled, setBiometricEnabled] = usePersistedState(
+    STORAGE_KEYS.BIOMETRICS_ENABLED,
+    false
+  );
   const [isRTL, setIsRTL] = useState(false);
   const { favorites, toggleFavorite, isFavorite, clearFavorites } =
     useFavorites();
+
+  // Ensure app is allowed to mirror layouts when RTL is active
+  useEffect(() => {
+    try {
+      I18nManager.allowRTL(true);
+      I18nManager.swapLeftAndRightInRTL(true);
+    } catch {}
+  }, []);
 
   useEffect(() => {
     i18n.locale = language;
@@ -38,6 +53,7 @@ export const AppProvider = ({ children }) => {
 
   const changeLanguage = async (newLanguage) => {
     await setLanguage(newLanguage);
+    // No full reload; direction is handled by context-driven isRTL
   };
 
   const changeTheme = async (newTheme) => {

@@ -7,6 +7,7 @@ import {
   Linking,
   Platform,
   ScrollView,
+  Share,
   Text,
   TouchableOpacity,
   View,
@@ -19,7 +20,7 @@ import { colors, styles } from "../utils/styles";
 
 const EventDetailsScreen = ({ route, navigation }) => {
   const { eventId } = route.params;
-  const { toggleFavorite, isFavorite } = useAppContext();
+  const { toggleFavorite, isFavorite, isRTL } = useAppContext();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -45,8 +46,20 @@ const EventDetailsScreen = ({ route, navigation }) => {
     }
   };
 
-  const handleShare = () => {
-    Alert.alert("Share", "Sharing functionality would be implemented here");
+  const handleShare = async () => {
+    if (!event) return;
+    // Prefer canonical URL from API; if missing, construct a fallback deep link
+    const link =
+      event.url ||
+      `https://citypulse.app/events/${encodeURIComponent(event.id)}`;
+    const message = `${event.name}\n${event.venue ? event.venue + ", " : ""}${
+      event.city || ""
+    }\n${link}`.trim();
+    try {
+      await Share.share({ message, url: link, title: event.name });
+    } catch (err) {
+      Alert.alert("Share", "Unable to share this event at the moment.");
+    }
   };
 
   const handleDirections = () => {
@@ -118,7 +131,13 @@ const EventDetailsScreen = ({ route, navigation }) => {
   }
 
   return (
-    <View style={[styles.flex, styles["bg-gray-50"]]}>
+    <View
+      style={[
+        styles.flex,
+        styles["bg-gray-50"],
+        isRTL ? styles.rtl : styles.ltr,
+      ]}
+    >
       {/* Header */}
       <View
         style={[
@@ -137,7 +156,11 @@ const EventDetailsScreen = ({ route, navigation }) => {
           ]}
         >
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color="#374151" />
+            <Ionicons
+              name={isRTL ? "arrow-forward" : "arrow-back"}
+              size={24}
+              color="#374151"
+            />
           </TouchableOpacity>
           <Text
             style={[
@@ -179,7 +202,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
                 styles["font-bold"],
                 styles["text-gray-800"],
                 styles["flex-1"],
-                styles["mr-4"],
+                styles["me-4"],
               ]}
             >
               {event.name}
@@ -218,7 +241,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
                   styles["bg-gray-100"],
                   styles["p-3"],
                   styles.rounded,
-                  styles["mr-4"],
+                  styles["me-4"],
                 ]}
               >
                 <Ionicons name="calendar" size={24} color={colors.primary} />
@@ -241,7 +264,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
                   styles["bg-gray-100"],
                   styles["p-3"],
                   styles.rounded,
-                  styles["mr-4"],
+                  styles["me-4"],
                 ]}
               >
                 <Ionicons name="time" size={24} color={colors.primary} />
@@ -265,7 +288,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
                   styles["bg-gray-100"],
                   styles["p-3"],
                   styles.rounded,
-                  styles["mr-4"],
+                  styles["me-4"],
                 ]}
               >
                 <Ionicons name="location" size={24} color={colors.primary} />
@@ -289,7 +312,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
                   styles["bg-gray-100"],
                   styles["p-3"],
                   styles.rounded,
-                  styles["mr-4"],
+                  styles["me-4"],
                 ]}
               >
                 <Ionicons name="card" size={24} color={colors.primary} />

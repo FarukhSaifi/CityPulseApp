@@ -7,12 +7,15 @@ import {
   ensureFirebase,
   firebaseAuth,
   isFirebaseConfigured,
+  upsertUserProfile,
 } from "../../bridge/firebase";
 import { useAuth } from "../../bridge/hooks";
+import { useAppContext } from "../../context/AppContext";
 import { gradients, styles } from "../../utils/styles";
 
 const SignupScreen = ({ navigation }) => {
   const { signup } = useAuth();
+  const { isRTL } = useAppContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -39,7 +42,16 @@ const SignupScreen = ({ navigation }) => {
         try {
           ensureFirebase();
           const auth = firebaseAuth();
-          await createUserWithEmailAndPassword(auth, email.trim(), password);
+          const cred = await createUserWithEmailAndPassword(
+            auth,
+            email.trim(),
+            password
+          );
+          try {
+            const fbUser = cred?.user;
+            const name = email.trim().split("@")[0];
+            await upsertUserProfile(fbUser, { name, provider: "firebase" });
+          } catch {}
           Alert.alert("Success", "Account created! You can login now.", [
             { text: "OK", onPress: () => navigation.replace("Login") },
           ]);
@@ -66,7 +78,13 @@ const SignupScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={[styles.flex, styles["bg-gray-50"]]}>
+    <View
+      style={[
+        styles.flex,
+        styles["bg-gray-50"],
+        isRTL ? styles.rtl : styles.ltr,
+      ]}
+    >
       <LinearGradient
         colors={gradients.primary}
         style={[
@@ -121,7 +139,8 @@ const SignupScreen = ({ navigation }) => {
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
-            style={[styles.flex, styles["ml-3"]]}
+            style={[styles.flex, styles["ms-3"]]}
+            textAlign={isRTL ? "right" : "left"}
           />
         </View>
 
@@ -143,7 +162,8 @@ const SignupScreen = ({ navigation }) => {
             secureTextEntry
             value={password}
             onChangeText={setPassword}
-            style={[styles.flex, styles["ml-3"]]}
+            style={[styles.flex, styles["ms-3"]]}
+            textAlign={isRTL ? "right" : "left"}
           />
         </View>
 
@@ -165,7 +185,8 @@ const SignupScreen = ({ navigation }) => {
             secureTextEntry
             value={confirm}
             onChangeText={setConfirm}
-            style={[styles.flex, styles["ml-3"]]}
+            style={[styles.flex, styles["ms-3"]]}
+            textAlign={isRTL ? "right" : "left"}
           />
         </View>
 

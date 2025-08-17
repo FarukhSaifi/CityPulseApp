@@ -16,7 +16,14 @@ import { useAppContext } from "../context/AppContext";
 import i18n from "../utils/i18n";
 import { colors, styles } from "../utils/styles";
 
-const SettingItem = ({ icon, title, subtitle, onPress, rightComponent }) => {
+const SettingItem = ({
+  icon,
+  title,
+  subtitle,
+  onPress,
+  rightComponent,
+  rtl,
+}) => {
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -40,7 +47,7 @@ const SettingItem = ({ icon, title, subtitle, onPress, rightComponent }) => {
               styles["bg-primary-light"],
               styles["p-2"],
               styles.rounded,
-              styles["mr-4"],
+              rtl ? styles["ms-4"] : styles["me-4"],
             ]}
           >
             <Ionicons name={icon} size={24} color={colors.primary} />
@@ -51,6 +58,7 @@ const SettingItem = ({ icon, title, subtitle, onPress, rightComponent }) => {
                 styles["text-gray-800"],
                 styles["font-semibold"],
                 styles["text-lg"],
+                { textAlign: rtl ? "right" : "left" },
               ]}
             >
               {title}
@@ -61,6 +69,7 @@ const SettingItem = ({ icon, title, subtitle, onPress, rightComponent }) => {
                   styles["text-gray-600"],
                   styles["text-sm"],
                   styles["mt-1"],
+                  { textAlign: rtl ? "right" : "left" },
                 ]}
               >
                 {subtitle}
@@ -69,7 +78,11 @@ const SettingItem = ({ icon, title, subtitle, onPress, rightComponent }) => {
           </View>
         </View>
         {rightComponent || (
-          <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+          <Ionicons
+            name={rtl ? "chevron-back" : "chevron-forward"}
+            size={20}
+            color="#9CA3AF"
+          />
         )}
       </View>
     </TouchableOpacity>
@@ -89,6 +102,7 @@ const ProfileScreen = () => {
     biometricEnabled,
     setBiometric,
     setLoginState,
+    isRTL,
   } = useAppContext();
 
   const handleLanguageChange = () => {
@@ -193,7 +207,13 @@ const ProfileScreen = () => {
   };
 
   return (
-    <View style={[styles.flex, styles["bg-gray-50"]]}>
+    <View
+      style={[
+        styles.flex,
+        styles["bg-gray-50"],
+        isRTL ? styles.rtl : styles.ltr,
+      ]}
+    >
       {/* Header */}
       <View
         style={[
@@ -236,6 +256,7 @@ const ProfileScreen = () => {
                 styles["font-bold"],
                 styles["text-gray-800"],
                 styles["mb-2"],
+                { textAlign: isRTL ? "right" : "left" },
               ]}
             >
               {user ? `Welcome, ${user.name}!` : "Welcome to City Pulse"}
@@ -284,14 +305,19 @@ const ProfileScreen = () => {
                   style={[
                     styles["text-primary"],
                     styles["font-medium"],
-                    styles["mr-2"],
+                    styles["me-2"],
                   ]}
                 >
                   {language === "en" ? "EN" : "AR"}
                 </Text>
-                <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+                <Ionicons
+                  name={isRTL ? "chevron-back" : "chevron-forward"}
+                  size={20}
+                  color="#9CA3AF"
+                />
               </View>
             }
+            rtl={isRTL}
           />
 
           <SettingItem
@@ -307,6 +333,7 @@ const ProfileScreen = () => {
                 thumbColor={"#FFFFFF"}
               />
             }
+            rtl={isRTL}
           />
 
           <SettingItem
@@ -326,6 +353,7 @@ const ProfileScreen = () => {
                 thumbColor={"#FFFFFF"}
               />
             }
+            rtl={isRTL}
           />
         </View>
 
@@ -349,21 +377,26 @@ const ProfileScreen = () => {
             icon="heart"
             title="Favorite Events"
             subtitle={`${favorites.length} events saved`}
-            onPress={() => {}}
+            onPress={() => navigation.navigate("Favorites")}
             rightComponent={
               <View style={[styles["flex-row"], styles["items-center"]]}>
                 <Text
                   style={[
                     styles["text-primary"],
                     styles["font-medium"],
-                    styles["mr-2"],
+                    styles["me-2"],
                   ]}
                 >
                   {favorites.length}
                 </Text>
-                <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+                <Ionicons
+                  name={isRTL ? "chevron-back" : "chevron-forward"}
+                  size={20}
+                  color="#9CA3AF"
+                />
               </View>
             }
+            rtl={isRTL}
           />
 
           {favorites.length > 0 && (
@@ -375,6 +408,7 @@ const ProfileScreen = () => {
               rightComponent={
                 <Ionicons name="trash-outline" size={20} color="#EF4444" />
               }
+              rtl={isRTL}
             />
           )}
         </View>
@@ -400,6 +434,7 @@ const ProfileScreen = () => {
             title="About City Pulse"
             subtitle="Version 1.0.0"
             onPress={handleAbout}
+            rtl={isRTL}
           />
 
           <SettingItem
@@ -407,6 +442,7 @@ const ProfileScreen = () => {
             title="Logout"
             subtitle="Sign out from this device"
             onPress={handleLogout}
+            rtl={isRTL}
           />
         </View>
 
