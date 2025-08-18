@@ -15,7 +15,7 @@ import { searchEvents } from "../utils/api";
 import i18n from "../utils/i18n";
 import { styles } from "../utils/styles";
 
-const EventCard = ({ event, onPress, onFavoritePress, isFavorite }) => {
+const EventCard = ({ event, onPress, onFavoritePress, isFavorite, isRTL }) => {
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -40,6 +40,7 @@ const EventCard = ({ event, onPress, onFavoritePress, isFavorite }) => {
             styles["justify-between"],
             styles["items-start"],
             styles["mb-2"],
+            isRTL && { flexDirection: "row-reverse" },
           ]}
         >
           <Text
@@ -48,7 +49,8 @@ const EventCard = ({ event, onPress, onFavoritePress, isFavorite }) => {
               styles["font-semibold"],
               styles["text-gray-800"],
               styles["flex-1"],
-              styles["me-2"],
+              isRTL ? styles["ms-2"] : styles["me-2"],
+              { textAlign: isRTL ? "right" : "left" },
             ]}
           >
             {event.name}
@@ -63,19 +65,41 @@ const EventCard = ({ event, onPress, onFavoritePress, isFavorite }) => {
         </View>
 
         <View
-          style={[styles["flex-row"], styles["items-center"], styles["mb-2"]]}
+          style={[
+            styles["flex-row"],
+            styles["items-center"],
+            styles["mb-2"],
+            isRTL && { flexDirection: "row-reverse" },
+          ]}
         >
           <Ionicons name="location" size={16} color="#6B7280" />
-          <Text style={[styles["text-gray-600"], styles["ms-1"]]}>
+          <Text
+            style={[
+              styles["text-gray-600"],
+              isRTL ? styles["me-1"] : styles["ms-1"],
+              { textAlign: isRTL ? "right" : "left" },
+            ]}
+          >
             {event.venue}, {event.city}
           </Text>
         </View>
 
         <View
-          style={[styles["flex-row"], styles["items-center"], styles["mb-2"]]}
+          style={[
+            styles["flex-row"],
+            styles["items-center"],
+            styles["mb-2"],
+            isRTL && { flexDirection: "row-reverse" },
+          ]}
         >
           <Ionicons name="calendar" size={16} color="#6B7280" />
-          <Text style={[styles["text-gray-600"], styles["ms-1"]]}>
+          <Text
+            style={[
+              styles["text-gray-600"],
+              isRTL ? styles["me-1"] : styles["ms-1"],
+              { textAlign: isRTL ? "right" : "left" },
+            ]}
+          >
             {event.date} at {event.time}
           </Text>
         </View>
@@ -85,6 +109,7 @@ const EventCard = ({ event, onPress, onFavoritePress, isFavorite }) => {
             styles["flex-row"],
             styles["items-center"],
             styles["justify-between"],
+            isRTL && { flexDirection: "row-reverse" },
           ]}
         >
           <View
@@ -264,6 +289,7 @@ const HomeScreen = ({ navigation }) => {
             onPress={() => handleEventPress(item)}
             onFavoritePress={() => handleFavoritePress(item)}
             isFavorite={isFavorite(item.id)}
+            isRTL={isRTL}
           />
         )}
         refreshControl={

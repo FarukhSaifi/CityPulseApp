@@ -39,9 +39,17 @@ const SettingItem = ({
           styles["flex-row"],
           styles["items-center"],
           styles["justify-between"],
+          rtl && { flexDirection: "row-reverse" },
         ]}
       >
-        <View style={[styles["flex-row"], styles["items-center"], styles.flex]}>
+        <View
+          style={[
+            styles["flex-row"],
+            styles["items-center"],
+            styles.flex,
+            rtl && { flexDirection: "row-reverse" },
+          ]}
+        >
           <View
             style={[
               styles["bg-primary-light"],
@@ -52,7 +60,7 @@ const SettingItem = ({
           >
             <Ionicons name={icon} size={24} color={colors.primary} />
           </View>
-          <View style={styles.flex}>
+          <View style={[styles.flex, rtl && { alignItems: "flex-end" }]}>
             <Text
               style={[
                 styles["text-gray-800"],
