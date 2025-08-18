@@ -1,14 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
-import {
-  ensureFirebase,
-  firebaseAuth,
-  isFirebaseConfigured,
-  upsertUserProfile,
-} from "../../bridge/firebase";
 import { useAuth } from "../../bridge/hooks";
 import { useAppContext } from "../../context/AppContext";
 import { gradients, styles } from "../../utils/styles";
@@ -37,34 +30,9 @@ const SignupScreen = ({ navigation }) => {
 
     setIsLoading(true);
     try {
-      // Try Firebase first if configured
-      if (isFirebaseConfigured()) {
-        try {
-          ensureFirebase();
-          const auth = firebaseAuth();
-          const cred = await createUserWithEmailAndPassword(
-            auth,
-            email.trim(),
-            password
-          );
-          try {
-            const fbUser = cred?.user;
-            const name = email.trim().split("@")[0];
-            await upsertUserProfile(fbUser, { name, provider: "firebase" });
-          } catch {}
-          Alert.alert("Success", "Account created! You can login now.", [
-            { text: "OK", onPress: () => navigation.replace("Login") },
-          ]);
-          return;
-        } catch (e) {
-          // Firebase failed, fall back to mock
-        }
-      }
-
-      // Try mock signup
       const result = await signup(email.trim(), password);
       if (result.success) {
-        Alert.alert("Success", "Mock account created! You can login now.", [
+        Alert.alert("Success", "Account created! You can login now.", [
           { text: "OK", onPress: () => navigation.replace("Login") },
         ]);
       } else {

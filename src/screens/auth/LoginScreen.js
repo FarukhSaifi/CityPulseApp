@@ -1,7 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import * as LocalAuthentication from "expo-local-authentication";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -11,12 +10,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  ensureFirebase,
-  firebaseAuth,
-  isFirebaseConfigured,
-  upsertUserProfile,
-} from "../../bridge/firebase";
 import { useAuth } from "../../bridge/hooks";
 import { storage } from "../../bridge/storage";
 import { useAppContext } from "../../context/AppContext";
@@ -196,34 +189,6 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
 
-    // Try Firebase first if configured
-    if (isFirebaseConfigured()) {
-      try {
-        ensureFirebase();
-        const auth = firebaseAuth();
-        const cred = await signInWithEmailAndPassword(auth, trimmed, password);
-        try {
-          const fbUser = cred?.user;
-          const userData = {
-            id: fbUser?.uid || Date.now().toString(),
-            email: fbUser?.email || trimmed,
-            name: fbUser?.displayName || trimmed.split("@")[0],
-            createdAt: new Date().toISOString(),
-            provider: "firebase",
-          };
-          await storage.set("auth_user", userData);
-          await upsertUserProfile(fbUser, { name: userData.name });
-        } catch {}
-        await setLoginState(true);
-        navigation.replace("MainTabs");
-        return;
-      } catch (e) {
-        const message = e?.message || "Unable to login with Firebase";
-        Alert.alert("Login Failed", message);
-      }
-    }
-
-    // Try mock authentication
     try {
       const result = await login(trimmed, password);
       if (result.success) {

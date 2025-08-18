@@ -13,14 +13,4 @@ const DEFAULTS = {
 export const CONFIG = {
   TM_BASE: DEFAULTS.TICKETMASTER_API_BASE,
   TM_KEY: DEFAULTS.TICKETMASTER_API_KEY,
-  FIREBASE: {
-    apiKey: "AIzaSyCqVKY9jDRxM3qkLMgcHAqmVnNxNcadcpM",
-    authDomain: "reactdash-38979.firebaseapp.com",
-    databaseURL: "https://reactdash-38979.firebaseio.com",
-    projectId: "reactdash-38979",
-    storageBucket: "reactdash-38979.firebasestorage.app",
-    messagingSenderId: "503588692738",
-    appId: "1:503588692738:web:b1f4e65b7bee52fbc5d81b",
-    measurementId: "G-1D80WNEB9C",
-  },
 };

@@ -113,7 +113,7 @@ A local events discovery app that helps you find exciting events in your area.
 
 ## Authentication System
 
-The app includes a robust authentication system with both Firebase and mock authentication support:
+The app includes a robust authentication system with AsyncStorage-based local authentication:
 
 ### Mock Authentication (Default)
 
@@ -127,7 +127,7 @@ The app includes a robust authentication system with both Firebase and mock auth
 - Secure password requirements (minimum 6 characters)
 - Local data persistence
 - **Face ID & Touch ID Support**: Secure biometric authentication
-- Automatic fallback to mock auth if Firebase is not configured
+- Local user storage with AsyncStorage
 
 ## Setup Instructions
 
@@ -171,7 +171,7 @@ src/
 
 1. **Local Data Storage**: User data is stored locally using AsyncStorage for privacy and offline functionality
 2. **Mock Authentication**: Provides a working authentication system without requiring external services
-3. **Fallback Strategy**: Firebase authentication is attempted first, with automatic fallback to mock auth
+3. **Local Storage**: All user data is stored locally using AsyncStorage
 4. **Biometric Support**: Optional biometric authentication for enhanced security
 5. **Responsive Design**: UI adapts to different screen sizes and orientations
 
@@ -209,4 +209,4 @@ src/
 - Passwords are stored locally (mock system only)
 - Biometric data is handled by the device's secure enclave
 - No sensitive data is transmitted to external servers in mock mode
-- Firebase integration provides enterprise-grade security when configured
+- Local storage provides privacy and offline functionality
