@@ -2,16 +2,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React from "react";
 import { useAppContext } from "../context/AppContext";
+import { useTheme } from "../context/ThemeContext";
 import FavoritesScreen from "../screens/FavoritesScreen";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import i18n from "../utils/i18n";
-import { colors } from "../utils/styles";
 
 const Tab = createBottomTabNavigator();
 
 const MainTabNavigator = () => {
   const { isRTL } = useAppContext();
+  const { colors } = useTheme();
 
   return (
     <Tab.Navigator
@@ -31,16 +32,16 @@ const MainTabNavigator = () => {
             <Ionicons name={iconName} size={focused ? 26 : 22} color={color} />
           );
         },
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarActiveTintColor: colors.primary.main,
+        tabBarInactiveTintColor: colors.text.secondary,
         tabBarHideOnKeyboard: true,
         tabBarStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.background.paper,
           borderTopWidth: 0,
           paddingBottom: 10,
           paddingTop: 8,
           height: 68,
-          shadowColor: "#000",
+          shadowColor: colors.black,
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.06,
           shadowRadius: 6,

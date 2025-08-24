@@ -1,212 +1,308 @@
-## City Pulse – Local Events Explorer
+# CityPulseApp
 
-JavaScript (Expo) app to discover local events with search, favorites, multilingual UI (EN/AR), and clean modular architecture.
+A modern React Native mobile application for discovering and managing local events. Built with Expo and featuring a clean, modular architecture with local storage persistence.
 
-### Features
+## 🚀 Features
 
-- Search events by keyword and city (Ticketmaster Discovery API)
-- Event detail screen
-- Favorites with local persistence
-- English/Arabic UI with RTL layout effects
-- Navigation: Splash → Home → Event Details → Profile
+- **Event Discovery**: Search and browse local events using the Ticketmaster Discovery API
+- **User Authentication**: Secure login and signup system with local user management
+- **Favorites Management**: Save and organize your favorite events with local persistence
+- **Biometric Authentication**: Support for Face ID and Touch ID (iOS/Android)
+- **Multi-language Support**: English and Arabic interface with RTL layout support
+- **Theme System**: Light and dark mode support
+- **Offline Capability**: Local data persistence using AsyncStorage
+- **Responsive Design**: Optimized for various screen sizes and orientations
+- **Error Handling**: Comprehensive error management with user-friendly alerts
+- **Firebase Integration**: Ready for cloud backend integration (currently local-only)
 
-### Tech Stack
+## 🛠 Tech Stack
 
-- Expo (React Native)
-- React Navigation (Stack + Bottom Tabs)
-- AsyncStorage for local persistence
-- i18n-js + expo-localization
-- Expo Vector Icons, LinearGradient
+- **Framework**: React Native with Expo SDK 53
+- **Navigation**: React Navigation (Stack + Bottom Tabs)
+- **State Management**: React Context API
+- **Local Storage**: AsyncStorage for data persistence
+- **Authentication**: Local user management with biometric support
+- **Internationalization**: i18n-js with expo-localization
+- **UI Components**: Expo Vector Icons, LinearGradient
+- **Maps**: React Native Maps integration
+- **Animations**: React Native Reanimated
+- **Error Handling**: Custom error context and alert system
 
-### Setup
+## 📱 Screens
 
-1. Prereqs: Node 18+, Expo CLI, Android Studio or Xcode for device/simulator
-2. Install deps:
+- **Splash Screen**: App initialization and loading
+- **Home Screen**: Event search and discovery
+- **Event Details**: Comprehensive event information
+- **Favorites**: Saved events management
+- **Profile**: User settings and preferences
+- **Authentication**: Login and signup flows
+
+## 🏗 Project Structure
+
+```
+src/
+├── bridge/                    # Business logic and core services
+│   ├── config/               # Configuration files
+│   │   ├── apiConfig.js      # API configuration
+│   │   └── firebaseConfig.js # Firebase setup (future)
+│   ├── services/             # Service layer
+│   │   ├── eventService.js   # Event API integration
+│   │   ├── firebase/         # Firebase services
+│   │   │   ├── firebase.js   # Firebase core functionality
+│   │   │   ├── firebaseErrorHandler.js # Error handling
+│   │   │   └── index.js      # Service exports
+│   │   ├── utilityService.js # Utility functions
+│   │   ├── validationService.js # Input validation
+│   │   └── index.js          # Service exports
+│   ├── types/                # TypeScript definitions
+│   ├── auth.js               # Authentication logic
+│   ├── constants.js          # App constants and configuration
+│   ├── hooks.js              # Custom React hooks
+│   └── storage.js            # Local storage utilities
+├── components/                # Reusable UI components
+│   ├── common/               # Shared components
+│   │   ├── Toast.js          # Toast notification component
+│   │   └── VirtualizedList.js # Optimized list component
+│   ├── ErrorAlertBar.js      # Error display component
+│   ├── FirebaseStatus.js     # Firebase connection status
+│   ├── TestErrorAlerts.js    # Error testing component
+│   └── ThemeExample.js       # Theme demonstration
+├── context/                   # React Context providers
+│   ├── AppContext.js         # Main app state
+│   ├── ErrorContext.js       # Error handling
+│   └── ThemeContext.js       # Theme management
+├── navigation/                # Navigation configuration
+│   ├── AppNavigator.js       # Main navigation
+│   └── MainTabNavigator.js   # Tab navigation
+├── screens/                   # App screens
+│   ├── auth/                 # Authentication screens
+│   │   ├── LoginScreen.js    # User login
+│   │   └── SignupScreen.js   # User registration
+│   ├── EventDetailsScreen.js # Event information
+│   ├── FavoritesScreen.js    # Saved events
+│   ├── HomeScreen.js         # Main discovery
+│   ├── ProfileScreen.js      # User profile
+│   └── SplashScreen.js       # App loading
+└── utils/                     # Utility functions
+    ├── i18n.js               # Internationalization
+    ├── styles.js             # Styling utilities
+    ├── theme.js              # Theme configuration
+    └── unifiedStyles.js      # Unified styling system
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- Expo CLI
+- iOS Simulator (Xcode) or Android Emulator (Android Studio)
+- Expo Go app for device testing
+
+### Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone [repository-url]
+   cd CityPulseApp
+   ```
+
+2. **Install dependencies**
 
    ```bash
    npm install
    ```
 
-3. Start:
+3. **Start the development server**
 
    ```bash
    npm start
    ```
 
-4. Press `i` (iOS) or `a` (Android) in Expo CLI, or scan QR with Expo Go.
+4. **Run on device/simulator**
+   - Press `i` for iOS simulator
+   - Press `a` for Android emulator
+   - Scan QR code with Expo Go app
 
-### Project Structure
+### Available Scripts
 
-```
-src/
-  bridge/               # Common bridging layer for business logic
-    constants.js        # Shared constants (e.g., storage keys)
-    storage.js          # AsyncStorage wrapper
-    hooks.js            # Reusable hooks (usePersistedState, useFavorites)
-  components/
-    Button.js
-  context/
-    AppContext.js       # Global state using bridging layer
-  navigation/
-    AppNavigator.js
-    MainTabNavigator.js
-  screens/
-    SplashScreen.js
-    HomeScreen.js
-    EventDetailsScreen.js
-    FavoritesScreen.js
-    ProfileScreen.js
-  utils/
-    api.js              # Ticketmaster Discovery API integration
-    i18n.js             # Translations and locale init
-    styles.js           # Tailwind-like utility styles
-App.js
-```
+- `npm start` - Launch Expo development server
+- `npm run ios` - Open iOS simulator
+- `npm run android` - Open Android emulator
+- `npm run web` - Open web preview
+- `npm run build:android` - Build Android APK
+- `npm run build:ios` - Build iOS app
 
-### Local Persistence
+## 🔑 API Configuration
 
-- Implemented via AsyncStorage in `src/bridge/storage.js`.
-- Favorites, language, and theme saved using keys in `src/bridge/constants.js`.
-- `usePersistedState` and `useFavorites` in `src/bridge/hooks.js` centralize logic.
+### Ticketmaster Discovery API
 
-### API Configuration (Ticketmaster)
+The app integrates with the Ticketmaster Discovery API v2 for event data:
 
-- Using the official Discovery API v2 docs: [Discovery API v2](https://developer.ticketmaster.com/products-and-docs/apis/discovery-api/v2/#search-events-v2).
-- Configure API key via environment var (recommended):
-  - `export EXPO_PUBLIC_TICKETMASTER_API_KEY=YOUR_KEY`
-  - Or update `src/bridge/config.js` (demo key `wkYdkQM7vfPL9ygYyq5BgxaaRkIi2nuA` is included for testing).
-- Endpoints used:
-  - Search: `GET /discovery/v2/events.json?keyword=...&city=...&apikey=...`
-  - Event Details: `GET /discovery/v2/events/{id}.json?apikey=...`
-  - Example: `https://app.ticketmaster.com/discovery/v2/events.json?apikey=wkYdkQM7vfPL9ygYyq5BgxaaRkIi2nuA`
+- **Base URL**: `https://app.ticketmaster.com/discovery/v2`
+- **API Key**: Configure in `src/bridge/config/apiConfig.js`
+- **Endpoints**:
+  - Search Events: `GET /events.json`
+  - Event Details: `GET /events/{id}.json`
+- **Features**:
+  - Intelligent caching (5-minute cache duration)
+  - Retry mechanism (3 attempts)
+  - Timeout handling (10 seconds)
+  - Pagination support
 
-### Assumptions
+#### Setting up your API key
 
-- Using mock data for initial build; replace with real API when ready.
-- RTL layout impact handled at component level via textAlign and container direction if needed.
-- Tailwind-like styling is provided via `styles.js` utilities instead of NativeWind to avoid CSS bundling issues.
-
-### Scripts
-
-- `npm start` – launch Expo dev server
-- `npm run ios` – open iOS simulator
-- `npm run android` – open Android emulator
-- `npm run web` – open web preview
-
-### Notes
-
-- If you change storage keys or structure, consider adding a migration in `storage.js`.
-
-# City Pulse App
-
-A local events discovery app that helps you find exciting events in your area.
-
-## Features
-
-- **Event Discovery**: Browse and search local events
-- **Favorites**: Save and manage your favorite events
-- **User Authentication**: Secure login and signup system
-- **Biometric Login**: Support for fingerprint and face recognition
-- **Multi-language**: English and Arabic support
-- **Theme Support**: Light and dark mode
-- **Local Storage**: Data persistence using AsyncStorage
-
-## Authentication System
-
-The app includes a robust authentication system with AsyncStorage-based local authentication:
-
-### Mock Authentication (Default)
-
-- **Demo Account**: `demo@citypulse.app` / `password123`
-- **Test Account**: `test@citypulse.app` / `test123`
-- **Admin Account**: `admin@citypulse.app` / `admin123`
-
-### Features
-
-- User registration with email validation
-- Secure password requirements (minimum 6 characters)
-- Local data persistence
-- **Face ID & Touch ID Support**: Secure biometric authentication
-- Local user storage with AsyncStorage
-
-## Setup Instructions
-
-1. **Install Dependencies**
+1. **Environment Variable** (Recommended):
 
    ```bash
-   npm install
+   export EXPO_PUBLIC_TICKETMASTER_API_KEY=your_api_key_here
    ```
 
-2. **Run the App**
+2. **Direct Configuration**: Edit `src/bridge/config/apiConfig.js` and replace the demo key
 
-   ```bash
-   npx expo start
-   ```
+**Note**: A demo API key is included for testing purposes. Replace with your own key for production use.
 
-3. **Authentication Testing**
-   - Use any of the mock accounts above to login
-   - Create new accounts through the signup page
-   - **Face ID Setup**:
-     - Go to Profile → Biometric Login → Toggle ON
-     - Verify your identity when prompted
-     - Face ID will now auto-prompt on app launch
+## 👤 Authentication System
 
-## Project Structure
+### Local User Management
 
-```
-src/
-├── bridge/           # Business logic and hooks
-│   ├── hooks.js     # Custom hooks including useAuth
-│   ├── storage.js   # Local storage utilities
-│   └── constants.js # App constants
-├── components/       # Reusable UI components
-├── context/         # React context providers
-├── navigation/      # Navigation configuration
-├── screens/         # App screens
-│   └── auth/       # Authentication screens
-└── utils/           # Utility functions and styles
-```
+The app currently uses a local authentication system with the following features:
 
-## Assumptions Made
+- **User Registration**: Create new accounts with email and password
+- **User Login**: Secure authentication with stored credentials
+- **Password Requirements**: Minimum 6 characters
+- **Local Storage**: User data persisted in AsyncStorage
+- **Data Validation**: Email format and password length validation
 
-1. **Local Data Storage**: User data is stored locally using AsyncStorage for privacy and offline functionality
-2. **Mock Authentication**: Provides a working authentication system without requiring external services
-3. **Local Storage**: All user data is stored locally using AsyncStorage
-4. **Biometric Support**: Optional biometric authentication for enhanced security
-5. **Responsive Design**: UI adapts to different screen sizes and orientations
+### Demo Accounts
 
-## Dependencies
+For testing purposes, the following accounts are pre-configured:
 
-- React Native & Expo
-- AsyncStorage for local data persistence
-- Expo Local Authentication for biometric features
-- React Navigation for routing
-- Expo Linear Gradient for UI enhancements
+- **Demo User**: `demo@citypulse.app` / `password123`
+- **Test User**: `test@citypulse.app` / `test123`
+- **Admin User**: `admin@citypulse.app` / `admin123`
 
-## Face ID & Touch ID Configuration
+### Biometric Authentication
 
-### iOS Setup
+- **Face ID**: iOS facial recognition support
+- **Touch ID**: iOS fingerprint authentication
+- **Fingerprint**: Android biometric authentication
+- **Secure Storage**: Biometric data handled by device secure enclave
+- **Settings**: Toggle biometric login in Profile screen
 
-1. **Enable in App**: Go to Profile → Biometric Login → Toggle ON
-2. **Verify Identity**: Complete Face ID/Touch ID verification when prompted
-3. **Auto-Login**: Face ID will automatically prompt on app launch when enabled
+## 💾 Data Persistence
 
-### Android Setup
+### Local Storage Strategy
 
-1. **Enable in App**: Go to Profile → Biometric Login → Toggle ON
-2. **Verify Identity**: Complete fingerprint verification when prompted
-3. **Auto-Login**: Fingerprint will automatically prompt on app launch when enabled
+- **AsyncStorage**: Primary local storage solution
+- **Data Types**: User preferences, favorites, authentication state, search history
+- **Offline Support**: Full functionality without internet connection
+- **Cache Management**: Intelligent caching for API responses
+- **Data Limits**: Maximum 100 favorites, 10 search history items
 
-### Security Features
+### Storage Keys
 
-- Biometric data is handled by the device's secure enclave
-- No biometric data is stored in the app
-- Fallback to passcode/pattern is available
-- Settings can be changed in Profile screen
+Key data is organized using constants defined in `src/bridge/constants.js`:
 
-## Security Notes
+- User authentication state
+- User profile information
+- Favorite events
+- App preferences and settings
+- Language and theme preferences
+- Biometric authentication settings
 
-- Passwords are stored locally (mock system only)
-- Biometric data is handled by the device's secure enclave
-- No sensitive data is transmitted to external servers in mock mode
-- Local storage provides privacy and offline functionality
+## 🌍 Internationalization
+
+### Language Support
+
+- **English**: Primary language
+- **Arabic**: Full RTL layout support
+- **Dynamic Switching**: Change language at runtime
+- **Localized Content**: Event categories, UI text, and messages
+- **Device Locale**: Automatic detection of user's preferred language
+
+### Implementation
+
+- **i18n-js**: Core internationalization library
+- **expo-localization**: Device locale detection
+- **RTL Support**: Automatic layout direction handling
+- **Fallback**: Default to English if translation missing
+
+## 🎨 Theming System
+
+### Theme Features
+
+- **Light Mode**: Default bright theme
+- **Dark Mode**: Dark theme for low-light environments
+- **Dynamic Switching**: Toggle themes at runtime
+- **Consistent Design**: Unified color scheme and typography
+- **Component Styles**: Theme-aware component styling
+
+### Customization
+
+Themes are defined in `src/utils/theme.js` and can be easily customized:
+
+- Color palettes
+- Typography scales
+- Spacing systems
+- Component-specific styling
+- Animation durations
+
+## 🔧 Development
+
+### Code Organization
+
+- **Bridge Pattern**: Business logic separated from UI components
+- **Service Layer**: API integration and data management
+- **Custom Hooks**: Reusable logic for components
+- **Type Safety**: TypeScript definitions for better development experience
+- **Error Boundaries**: Comprehensive error handling system
+
+### Best Practices
+
+- **Modular Architecture**: Clean separation of concerns
+- **Error Handling**: Comprehensive error management with user feedback
+- **Performance**: Optimized rendering and data loading
+- **Accessibility**: Screen reader support and navigation
+- **Code Reusability**: Shared components and utilities
+
+### Error Handling
+
+- **Error Context**: Centralized error management
+- **User Feedback**: Toast notifications and alert bars
+- **Graceful Degradation**: Fallback mechanisms for failures
+- **Debugging Tools**: Error testing components for development
+
+## 🚧 Future Enhancements
+
+- **Firebase Integration**: Cloud backend and real-time sync (infrastructure ready)
+- **Push Notifications**: Event reminders and updates
+- **Social Features**: Event sharing and recommendations
+- **Advanced Search**: Filters, categories, and preferences
+- **Offline Maps**: Cached map data for offline use
+- **Analytics**: User behavior tracking and insights
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📞 Support
+
+For support and questions:
+
+- Create an issue in the repository
+- Check the documentation in the `/docs` folder
+- Review the code comments for implementation details
+
+---
+
+**Built with ❤️ using React Native and Expo**
