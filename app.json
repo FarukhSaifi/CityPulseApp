@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "City Pulse",
-    "slug": "city-pulse-app",
+    "slug": "city-pulse",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#5B3CFB"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
@@ -27,6 +29,14 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-localization"]
+    "plugins": [
+      "expo-localization"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "a8c12114-3378-4972-97eb-f5e7e8bdedae"
+      }
+    },
+    "owner": "farukh.saifi"
   }
 }
