@@ -4,18 +4,20 @@ import React, { useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useAuth } from "../../bridge/hooks";
 import { useAppContext } from "../../context/AppContext";
-import { gradients, styles } from "../../utils/styles";
+import { useTheme } from "../../context/ThemeContext";
 
 const SignupScreen = ({ navigation }) => {
   const { signup } = useAuth();
   const { isRTL } = useAppContext();
+  const { styles, colors, componentStyles } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSignup = async () => {
-    if (!email || !password || !confirm) {
+    if (!email || !password || !confirm || !displayName) {
       Alert.alert("Sign Up", "Please fill all fields");
       return;
     }
@@ -30,7 +32,7 @@ const SignupScreen = ({ navigation }) => {
 
     setIsLoading(true);
     try {
-      const result = await signup(email.trim(), password);
+      const result = await signup(email.trim(), password, displayName.trim());
       if (result.success) {
         Alert.alert("Success", "Account created! You can login now.", [
           { text: "OK", onPress: () => navigation.replace("Login") },
@@ -49,12 +51,12 @@ const SignupScreen = ({ navigation }) => {
     <View
       style={[
         styles.flex,
-        styles["bg-gray-50"],
+        styles["bg-background"],
         isRTL ? styles.rtl : styles.ltr,
       ]}
     >
       <LinearGradient
-        colors={gradients.primary}
+        colors={[colors.primary.main, colors.primary.dark]}
         style={[
           styles["h-40"],
           styles["justify-end"],
@@ -78,16 +80,35 @@ const SignupScreen = ({ navigation }) => {
         </Text>
       </LinearGradient>
 
-      <View
-        style={[
-          styles["bg-white"],
-          styles.rounded,
-          styles["p-6"],
-          styles["mx-4"],
-          styles["mt-4"],
-          styles["shadow-sm"],
-        ]}
-      >
+      <View style={[componentStyles.card, styles["mx-4"], styles["mt-4"]]}>
+        <View
+          style={[
+            styles["mb-3"],
+            styles["flex-row"],
+            styles["items-center"],
+            componentStyles.input,
+          ]}
+        >
+          <Ionicons
+            name="person-outline"
+            size={20}
+            color={colors.text.secondary}
+          />
+          <TextInput
+            placeholder="Full Name"
+            placeholderTextColor={colors.text.hint}
+            autoCapitalize="words"
+            value={displayName}
+            onChangeText={setDisplayName}
+            style={[
+              styles.flex,
+              styles["ms-3"],
+              { color: colors.text.primary },
+            ]}
+            textAlign={isRTL ? "right" : "left"}
+          />
+        </View>
+
         <View
           style={[
             styles["mb-3"],
@@ -100,14 +121,23 @@ const SignupScreen = ({ navigation }) => {
             styles["py-3"],
           ]}
         >
-          <Ionicons name="mail-outline" size={20} color="#6B7280" />
+          <Ionicons
+            name="mail-outline"
+            size={20}
+            color={colors.text.secondary}
+          />
           <TextInput
             placeholder="Email"
+            placeholderTextColor={colors.text.hint}
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
-            style={[styles.flex, styles["ms-3"]]}
+            style={[
+              styles.flex,
+              styles["ms-3"],
+              { color: colors.text.primary },
+            ]}
             textAlign={isRTL ? "right" : "left"}
           />
         </View>
@@ -117,20 +147,25 @@ const SignupScreen = ({ navigation }) => {
             styles["mb-1"],
             styles["flex-row"],
             styles["items-center"],
-            styles.border,
-            styles["border-gray-300"],
-            styles.rounded,
-            styles["px-4"],
-            styles["py-3"],
+            componentStyles.input,
           ]}
         >
-          <Ionicons name="lock-closed-outline" size={20} color="#6B7280" />
+          <Ionicons
+            name="lock-closed-outline"
+            size={20}
+            color={colors.text.secondary}
+          />
           <TextInput
             placeholder="Password"
+            placeholderTextColor={colors.text.hint}
             secureTextEntry
             value={password}
             onChangeText={setPassword}
-            style={[styles.flex, styles["ms-3"]]}
+            style={[
+              styles.flex,
+              styles["ms-3"],
+              { color: colors.text.primary },
+            ]}
             textAlign={isRTL ? "right" : "left"}
           />
         </View>
@@ -140,20 +175,25 @@ const SignupScreen = ({ navigation }) => {
             styles["mb-1"],
             styles["flex-row"],
             styles["items-center"],
-            styles.border,
-            styles["border-gray-300"],
-            styles.rounded,
-            styles["px-4"],
-            styles["py-3"],
+            componentStyles.input,
           ]}
         >
-          <Ionicons name="lock-closed-outline" size={20} color="#6B7280" />
+          <Ionicons
+            name="lock-closed-outline"
+            size={20}
+            color={colors.text.secondary}
+          />
           <TextInput
             placeholder="Confirm Password"
+            placeholderTextColor={colors.text.hint}
             secureTextEntry
             value={confirm}
             onChangeText={setConfirm}
-            style={[styles.flex, styles["ms-3"]]}
+            style={[
+              styles.flex,
+              styles["ms-3"],
+              { color: colors.text.primary },
+            ]}
             textAlign={isRTL ? "right" : "left"}
           />
         </View>
@@ -161,16 +201,13 @@ const SignupScreen = ({ navigation }) => {
         <TouchableOpacity
           onPress={handleSignup}
           style={[
-            styles["bg-primary"],
-            styles.rounded,
-            styles["py-3"],
-            styles["items-center"],
+            componentStyles.button,
             styles["mt-3"],
             isLoading && styles["opacity-50"],
           ]}
           disabled={isLoading}
         >
-          <Text style={[styles["text-white"], styles["font-semibold"]]}>
+          <Text style={componentStyles.buttonText}>
             {isLoading ? "Creating Account..." : "Create Account"}
           </Text>
         </TouchableOpacity>
@@ -179,7 +216,7 @@ const SignupScreen = ({ navigation }) => {
           <TouchableOpacity onPress={() => navigation.replace("Login")}>
             <Text
               style={[
-                styles["text-primary"],
+                styles["text-primary-color"],
                 styles["font-medium"],
                 styles["mt-1"],
               ]}

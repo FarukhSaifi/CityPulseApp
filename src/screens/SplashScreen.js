@@ -3,10 +3,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import { useAppContext } from "../context/AppContext";
-import { gradients, styles } from "../utils/styles";
+import { useTheme } from "../context/ThemeContext";
 
 const SplashScreen = ({ navigation }) => {
   const { loginState } = useAppContext();
+  const { styles, colors } = useTheme();
   useEffect(() => {
     const timer = setTimeout(() => {
       if (loginState) navigation.replace("MainTabs");
@@ -18,7 +19,7 @@ const SplashScreen = ({ navigation }) => {
 
   return (
     <LinearGradient
-      colors={gradients.primary}
+      colors={[colors.primary.main, colors.primary.dark]}
       style={[styles.flex, styles["justify-center"], styles["items-center"]]}
     >
       <View style={styles["items-center"]}>

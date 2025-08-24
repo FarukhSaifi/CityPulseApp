@@ -7,8 +7,14 @@ import React, {
 } from "react";
 import { I18nManager } from "react-native";
 import { STORAGE_KEYS } from "../bridge/constants";
-import { useFavorites, usePersistedState } from "../bridge/hooks";
+import {
+  useAuth,
+  useFavorites,
+  usePersistedState,
+  useUserPreferences,
+} from "../bridge/hooks";
 import i18n from "../utils/i18n";
+import { ThemeProvider } from "./ThemeContext";
 
 const AppContext = createContext();
 
@@ -21,17 +27,19 @@ export const useAppContext = () => {
 };
 
 export const AppProvider = ({ children }) => {
-  const [language, setLanguage] = usePersistedState(
-    STORAGE_KEYS.LANGUAGE,
-    "en"
-  );
-  const [theme, setTheme] = usePersistedState(STORAGE_KEYS.THEME, "light");
+  const { user } = useAuth();
+  const {
+    language,
+    theme,
+    biometricEnabled,
+    updateLanguage,
+    updateTheme,
+    updateBiometric,
+    loadFromFirebase,
+  } = useUserPreferences();
+
   const [loginState, setLoginState] = usePersistedState(
     STORAGE_KEYS.AUTH_LOGGED_IN,
-    false
-  );
-  const [biometricEnabled, setBiometricEnabled] = usePersistedState(
-    STORAGE_KEYS.BIOMETRICS_ENABLED,
     false
   );
   const [isRTL, setIsRTL] = useState(false);
@@ -51,34 +59,28 @@ export const AppProvider = ({ children }) => {
     setIsRTL(language === "ar");
   }, [language]);
 
-  const changeLanguage = async (newLanguage) => {
-    await setLanguage(newLanguage);
-    // No full reload; direction is handled by context-driven isRTL
-  };
-
-  const changeTheme = async (newTheme) => {
-    await setTheme(newTheme);
-  };
-
-  const setBiometric = async (value) => {
-    setBiometricEnabled(!!value);
-  };
+  // Load preferences from Firebase when user changes
+  useEffect(() => {
+    if (user?.id) {
+      loadFromFirebase();
+    }
+  }, [user?.id, loadFromFirebase]);
 
   const value = useMemo(
     () => ({
       language,
-      changeLanguage,
+      changeLanguage: updateLanguage,
       favorites,
       toggleFavorite,
       isFavorite,
       clearFavorites,
       theme,
-      changeTheme,
+      changeTheme: updateTheme,
       isRTL,
       loginState,
       setLoginState,
       biometricEnabled,
-      setBiometric,
+      setBiometric: updateBiometric,
     }),
     [
       language,
@@ -88,8 +90,15 @@ export const AppProvider = ({ children }) => {
       isRTL,
       loginState,
       biometricEnabled,
+      updateLanguage,
+      updateTheme,
+      updateBiometric,
     ]
   );
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <ThemeProvider theme={theme}>
+      <AppContext.Provider value={value}>{children}</AppContext.Provider>
+    </ThemeProvider>
+  );
 };

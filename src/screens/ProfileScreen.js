@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import * as LocalAuthentication from "expo-local-authentication";
-import React from "react";
+import React, { useState } from "react";
 import {
   Alert,
   Linking,
@@ -12,9 +12,10 @@ import {
   View,
 } from "react-native";
 import { useAuth } from "../bridge/hooks";
+import FirebaseStatus from "../components/FirebaseStatus";
 import { useAppContext } from "../context/AppContext";
+import { useTheme } from "../context/ThemeContext";
 import i18n from "../utils/i18n";
-import { colors, styles } from "../utils/styles";
 
 const SettingItem = ({
   icon,
@@ -23,15 +24,16 @@ const SettingItem = ({
   onPress,
   rightComponent,
   rtl,
+  styles,
+  colors,
+  componentStyles,
 }) => {
   return (
     <TouchableOpacity
       onPress={onPress}
       style={[
-        styles["bg-white"],
-        styles["p-4"],
-        styles["border-b"],
-        styles["border-gray-100"],
+        componentStyles.listItem,
+        rtl && { flexDirection: "row-reverse" },
       ]}
     >
       <View
@@ -52,18 +54,16 @@ const SettingItem = ({
         >
           <View
             style={[
-              styles["bg-primary-light"],
-              styles["p-2"],
-              styles.rounded,
+              componentStyles.iconContainer,
               rtl ? styles["ms-4"] : styles["me-4"],
             ]}
           >
-            <Ionicons name={icon} size={24} color={colors.primary} />
+            <Ionicons name={icon} size={24} color={colors.primary.main} />
           </View>
           <View style={[styles.flex, rtl && { alignItems: "flex-end" }]}>
             <Text
               style={[
-                styles["text-gray-800"],
+                styles["text-primary"],
                 styles["font-semibold"],
                 styles["text-lg"],
                 { textAlign: rtl ? "right" : "left" },
@@ -74,7 +74,7 @@ const SettingItem = ({
             {subtitle ? (
               <Text
                 style={[
-                  styles["text-gray-600"],
+                  styles["text-secondary"],
                   styles["text-sm"],
                   styles["mt-1"],
                   { textAlign: rtl ? "right" : "left" },
@@ -89,7 +89,7 @@ const SettingItem = ({
           <Ionicons
             name={rtl ? "chevron-back" : "chevron-forward"}
             size={20}
-            color="#9CA3AF"
+            color={colors.text.secondary}
           />
         )}
       </View>
@@ -100,6 +100,7 @@ const SettingItem = ({
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const { user, logout } = useAuth();
+  const { styles, colors, componentStyles, spacing } = useTheme();
   const {
     language,
     changeLanguage,
@@ -113,14 +114,26 @@ const ProfileScreen = () => {
     isRTL,
   } = useAppContext();
 
-  const handleLanguageChange = () => {
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleLanguageChange = async () => {
     const newLanguage = language === "en" ? "ar" : "en";
-    changeLanguage(newLanguage);
+    setIsSyncing(true);
+    try {
+      await changeLanguage(newLanguage);
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
-  const handleThemeChange = () => {
+  const handleThemeChange = async () => {
     const newTheme = theme === "light" ? "dark" : "light";
-    changeTheme(newTheme);
+    setIsSyncing(true);
+    try {
+      await changeTheme(newTheme);
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   const handleBiometricToggle = async () => {
@@ -157,8 +170,13 @@ const ProfileScreen = () => {
         });
 
         if (result.success) {
-          await setBiometric(true);
-          Alert.alert("Success", "Biometric login has been enabled!");
+          setIsSyncing(true);
+          try {
+            await setBiometric(true);
+            Alert.alert("Success", "Biometric login has been enabled!");
+          } finally {
+            setIsSyncing(false);
+          }
         } else {
           Alert.alert(
             "Authentication Failed",
@@ -167,8 +185,13 @@ const ProfileScreen = () => {
         }
       } else {
         // Disabling biometrics
-        await setBiometric(false);
-        Alert.alert("Disabled", "Biometric login has been disabled.");
+        setIsSyncing(true);
+        try {
+          await setBiometric(false);
+          Alert.alert("Disabled", "Biometric login has been disabled.");
+        } finally {
+          setIsSyncing(false);
+        }
       }
     } catch (error) {
       console.error("Biometric toggle error:", error);
@@ -218,25 +241,17 @@ const ProfileScreen = () => {
     <View
       style={[
         styles.flex,
-        styles["bg-gray-50"],
+        styles["bg-background"],
         isRTL ? styles.rtl : styles.ltr,
       ]}
     >
       {/* Header */}
-      <View
-        style={[
-          styles["bg-white"],
-          styles["pt-12"],
-          styles["pb-6"],
-          styles["px-4"],
-          styles["shadow-sm"],
-        ]}
-      >
+      <View style={componentStyles.header}>
         <Text
           style={[
             styles["text-2xl"],
             styles["font-bold"],
-            styles["text-gray-800"],
+            styles["text-primary"],
             styles["text-center"],
           ]}
         >
@@ -246,23 +261,22 @@ const ProfileScreen = () => {
 
       <ScrollView style={styles.flex}>
         {/* User Info Section */}
-        <View style={[styles["bg-white"], styles["p-6"], styles["mb-6"]]}>
+        <View style={[componentStyles.card, styles["mb-6"]]}>
           <View style={styles["items-center"]}>
             <View
               style={[
-                styles["bg-primary-light"],
-                styles["p-4"],
-                styles.rounded,
-                styles["mb-4"],
+                componentStyles.iconContainer,
+                styles["m-4"],
+                { padding: spacing[4] },
               ]}
             >
-              <Ionicons name="person" size={48} color={colors.primary} />
+              <Ionicons name="person" size={48} color={colors.primary.main} />
             </View>
             <Text
               style={[
                 styles["text-xl"],
                 styles["font-bold"],
-                styles["text-gray-800"],
+                styles["text-primary"],
                 styles["mb-2"],
                 { textAlign: isRTL ? "right" : "left" },
               ]}
@@ -272,7 +286,7 @@ const ProfileScreen = () => {
             {user && (
               <Text
                 style={[
-                  styles["text-gray-600"],
+                  styles["text-secondary"],
                   styles["text-center"],
                   styles["mb-2"],
                 ]}
@@ -280,24 +294,25 @@ const ProfileScreen = () => {
                 {user.email}
               </Text>
             )}
-            <Text style={[styles["text-gray-600"], styles["text-center"]]}>
+            <Text style={[styles["text-secondary"], styles["text-center"]]}>
               Discover and explore local events in your area
             </Text>
           </View>
         </View>
 
+        {/* Firebase Status */}
+        <FirebaseStatus />
+
         {/* Settings Section */}
-        <View
-          style={[
-            styles["bg-white"],
-            styles.rounded,
-            styles["mx-4"],
-            styles["mb-6"],
-            styles["overflow-hidden"],
-          ]}
-        >
-          <View style={[styles["bg-gray-50"], styles["px-4"], styles["py-3"]]}>
-            <Text style={[styles["text-gray-600"], styles["font-medium"]]}>
+        <View style={componentStyles.section}>
+          <View style={componentStyles.sectionHeader}>
+            <Text
+              style={[
+                styles["text-secondary"],
+                styles["font-medium"],
+                { textAlign: isRTL ? "right" : "left" },
+              ]}
+            >
               Preferences
             </Text>
           </View>
@@ -305,15 +320,36 @@ const ProfileScreen = () => {
           <SettingItem
             icon="language"
             title={i18n.t("language")}
-            subtitle={language === "en" ? i18n.t("english") : i18n.t("arabic")}
+            subtitle={
+              isSyncing
+                ? "Syncing..."
+                : language === "en"
+                ? i18n.t("english")
+                : i18n.t("arabic")
+            }
             onPress={handleLanguageChange}
             rightComponent={
-              <View style={[styles["flex-row"], styles["items-center"]]}>
+              <View
+                style={[
+                  styles["flex-row"],
+                  styles["items-center"],
+                  isRTL && { flexDirection: "row-reverse" },
+                ]}
+              >
+                {isSyncing && (
+                  <View style={[isRTL ? styles["ms-2"] : styles["me-2"]]}>
+                    <Text
+                      style={[styles["text-primary-color"], styles["text-xs"]]}
+                    >
+                      🔄
+                    </Text>
+                  </View>
+                )}
                 <Text
                   style={[
-                    styles["text-primary"],
+                    styles["text-primary-color"],
                     styles["font-medium"],
-                    styles["me-2"],
+                    isRTL ? styles["ms-2"] : styles["me-2"],
                   ]}
                 >
                   {language === "en" ? "EN" : "AR"}
@@ -321,62 +357,119 @@ const ProfileScreen = () => {
                 <Ionicons
                   name={isRTL ? "chevron-back" : "chevron-forward"}
                   size={20}
-                  color="#9CA3AF"
+                  color={colors.text.secondary}
                 />
               </View>
             }
             rtl={isRTL}
+            styles={styles}
+            colors={colors}
+            componentStyles={componentStyles}
           />
 
           <SettingItem
             icon="color-palette"
             title={i18n.t("theme")}
-            subtitle={theme === "light" ? i18n.t("light") : i18n.t("dark")}
+            subtitle={
+              isSyncing
+                ? "Syncing..."
+                : theme === "light"
+                ? i18n.t("light")
+                : i18n.t("dark")
+            }
             onPress={handleThemeChange}
             rightComponent={
-              <Switch
-                value={theme === "dark"}
-                onValueChange={handleThemeChange}
-                trackColor={{ false: "#D1D5DB", true: colors.primary }}
-                thumbColor={"#FFFFFF"}
-              />
+              <View
+                style={[
+                  styles["flex-row"],
+                  styles["items-center"],
+                  isRTL && { flexDirection: "row-reverse" },
+                ]}
+              >
+                {isSyncing && (
+                  <View style={[isRTL ? styles["ms-2"] : styles["me-2"]]}>
+                    <Text
+                      style={[styles["text-primary-color"], styles["text-xs"]]}
+                    >
+                      🔄
+                    </Text>
+                  </View>
+                )}
+                <Switch
+                  value={theme === "dark"}
+                  onValueChange={handleThemeChange}
+                  trackColor={{
+                    false: colors.border.main,
+                    true: colors.primary.main,
+                  }}
+                  thumbColor={colors.white}
+                  disabled={isSyncing}
+                />
+              </View>
             }
             rtl={isRTL}
+            styles={styles}
+            colors={colors}
+            componentStyles={componentStyles}
           />
 
           <SettingItem
             icon="finger-print"
             title="Biometric Login"
             subtitle={
-              biometricEnabled
+              isSyncing
+                ? "Syncing..."
+                : biometricEnabled
                 ? "Face ID / Touch ID enabled"
                 : "Use Face ID or Touch ID to login"
             }
             onPress={handleBiometricToggle}
             rightComponent={
-              <Switch
-                value={biometricEnabled}
-                onValueChange={handleBiometricToggle}
-                trackColor={{ false: "#D1D5DB", true: colors.primary }}
-                thumbColor={"#FFFFFF"}
-              />
+              <View
+                style={[
+                  styles["flex-row"],
+                  styles["items-center"],
+                  isRTL && { flexDirection: "row-reverse" },
+                ]}
+              >
+                {isSyncing && (
+                  <View style={[isRTL ? styles["ms-2"] : styles["me-2"]]}>
+                    <Text
+                      style={[styles["text-primary-color"], styles["text-xs"]]}
+                    >
+                      🔄
+                    </Text>
+                  </View>
+                )}
+                <Switch
+                  value={biometricEnabled}
+                  onValueChange={handleBiometricToggle}
+                  trackColor={{
+                    false: colors.border.main,
+                    true: colors.primary.main,
+                  }}
+                  thumbColor={colors.white}
+                  disabled={isSyncing}
+                />
+              </View>
             }
             rtl={isRTL}
+            styles={styles}
+            colors={colors}
+            componentStyles={componentStyles}
           />
         </View>
 
         {/* Favorites Section */}
-        <View
-          style={[
-            styles["bg-white"],
-            styles.rounded,
-            styles["mx-4"],
-            styles["mb-6"],
-            styles["overflow-hidden"],
-          ]}
-        >
-          <View style={[styles["bg-gray-50"], styles["px-4"], styles["py-3"]]}>
-            <Text style={[styles["text-gray-600"], styles["font-medium"]]}>
+        <View style={componentStyles.section}>
+          <View style={componentStyles.sectionHeader}>
+            <Text
+              style={[
+                styles["text-secondary"],
+                styles["font-medium"],
+                { textAlign: isRTL ? "right" : "left" },
+              ]}
+            >
               Favorites
             </Text>
           </View>
@@ -387,12 +480,18 @@ const ProfileScreen = () => {
             subtitle={`${favorites.length} events saved`}
             onPress={() => navigation.navigate("Favorites")}
             rightComponent={
-              <View style={[styles["flex-row"], styles["items-center"]]}>
+              <View
+                style={[
+                  styles["flex-row"],
+                  styles["items-center"],
+                  isRTL && { flexDirection: "row-reverse" },
+                ]}
+              >
                 <Text
                   style={[
-                    styles["text-primary"],
+                    styles["text-primary-color"],
                     styles["font-medium"],
-                    styles["me-2"],
+                    isRTL ? styles["ms-2"] : styles["me-2"],
                   ]}
                 >
                   {favorites.length}
@@ -400,11 +499,14 @@ const ProfileScreen = () => {
                 <Ionicons
                   name={isRTL ? "chevron-back" : "chevron-forward"}
                   size={20}
-                  color="#9CA3AF"
+                  color={colors.text.secondary}
                 />
               </View>
             }
             rtl={isRTL}
+            styles={styles}
+            colors={colors}
+            componentStyles={componentStyles}
           />
 
           {favorites.length > 0 && (
@@ -414,25 +516,30 @@ const ProfileScreen = () => {
               subtitle="Remove all saved events"
               onPress={handleClearFavorites}
               rightComponent={
-                <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                <Ionicons
+                  name="trash-outline"
+                  size={20}
+                  color={colors.error.main}
+                />
               }
               rtl={isRTL}
+              styles={styles}
+              colors={colors}
+              componentStyles={componentStyles}
             />
           )}
         </View>
 
         {/* App Info Section */}
-        <View
-          style={[
-            styles["bg-white"],
-            styles.rounded,
-            styles["mx-4"],
-            styles["mb-6"],
-            styles["overflow-hidden"],
-          ]}
-        >
-          <View style={[styles["bg-gray-50"], styles["px-4"], styles["py-3"]]}>
-            <Text style={[styles["text-gray-600"], styles["font-medium"]]}>
+        <View style={componentStyles.section}>
+          <View style={componentStyles.sectionHeader}>
+            <Text
+              style={[
+                styles["text-secondary"],
+                styles["font-medium"],
+                { textAlign: isRTL ? "right" : "left" },
+              ]}
+            >
               App Information
             </Text>
           </View>
@@ -443,6 +550,9 @@ const ProfileScreen = () => {
             subtitle="Version 1.0.0"
             onPress={handleAbout}
             rtl={isRTL}
+            styles={styles}
+            colors={colors}
+            componentStyles={componentStyles}
           />
 
           <SettingItem
@@ -451,16 +561,30 @@ const ProfileScreen = () => {
             subtitle="Sign out from this device"
             onPress={handleLogout}
             rtl={isRTL}
+            styles={styles}
+            colors={colors}
+            componentStyles={componentStyles}
           />
         </View>
 
         {/* App Version */}
         <View style={[styles["items-center"], styles["py-6"]]}>
-          <Text style={[styles["text-gray-500"], styles["text-sm"]]}>
+          <Text
+            style={[
+              styles["text-secondary"],
+              styles["text-sm"],
+              { textAlign: isRTL ? "right" : "left" },
+            ]}
+          >
             City Pulse v1.0.0
           </Text>
           <Text
-            style={[styles["text-gray-400"], styles["text-xs"], styles["mt-1"]]}
+            style={[
+              styles["text-hint"],
+              styles["text-xs"],
+              styles["mt-1"],
+              { textAlign: isRTL ? "right" : "left" },
+            ]}
           >
             © 2025 City Pulse. All rights reserved.
           </Text>

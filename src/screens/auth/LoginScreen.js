@@ -13,7 +13,7 @@ import {
 import { useAuth } from "../../bridge/hooks";
 import { storage } from "../../bridge/storage";
 import { useAppContext } from "../../context/AppContext";
-import { gradients, styles } from "../../utils/styles";
+import { useTheme } from "../../context/ThemeContext";
 
 const mockUser = { email: "demo@citypulse.app", password: "password123" };
 
@@ -21,6 +21,7 @@ const LoginScreen = ({ navigation }) => {
   const { biometricEnabled, setLoginState, setBiometric, isRTL } =
     useAppContext();
   const { login } = useAuth();
+  const { styles, colors, componentStyles } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [checkingBio, setCheckingBio] = useState(false);
@@ -206,12 +207,12 @@ const LoginScreen = ({ navigation }) => {
     <View
       style={[
         styles.flex,
-        styles["bg-gray-50"],
+        styles["bg-background"],
         isRTL ? styles.rtl : styles.ltr,
       ]}
     >
       <LinearGradient
-        colors={gradients.primary}
+        colors={[colors.primary.main, colors.primary.dark]}
         style={[
           styles["h-40"],
           styles["justify-end"],
@@ -229,42 +230,38 @@ const LoginScreen = ({ navigation }) => {
           Welcome Back
         </Text>
         <Text
-          style={[styles["text-white"], styles["opacity-80"], styles["mt-1"]]}
+          style={[styles["text-white"], styles["opacity-75"], styles["mt-1"]]}
         >
           Sign in to continue
         </Text>
       </LinearGradient>
 
-      <View
-        style={[
-          styles["bg-white"],
-          styles.rounded,
-          styles["p-6"],
-          styles["mx-4"],
-          styles["mt-4"],
-          styles["shadow-sm"],
-        ]}
-      >
+      <View style={[componentStyles.card, styles["mx-4"], styles["mt-4"]]}>
         <View
           style={[
             styles["mb-3"],
             styles["flex-row"],
             styles["items-center"],
-            styles.border,
-            styles["border-gray-300"],
-            styles.rounded,
-            styles["px-4"],
-            styles["py-3"],
+            componentStyles.input,
           ]}
         >
-          <Ionicons name="mail-outline" size={20} color="#6B7280" />
+          <Ionicons
+            name="mail-outline"
+            size={20}
+            color={colors.text.secondary}
+          />
           <TextInput
             placeholder="Email"
+            placeholderTextColor={colors.text.hint}
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
-            style={[styles.flex, styles["ms-3"]]}
+            style={[
+              styles.flex,
+              styles["ms-3"],
+              { color: colors.text.primary },
+            ]}
             textAlign={isRTL ? "right" : "left"}
           />
         </View>
@@ -274,61 +271,60 @@ const LoginScreen = ({ navigation }) => {
             styles["mb-1"],
             styles["flex-row"],
             styles["items-center"],
-            styles.border,
-            styles["border-gray-300"],
-            styles.rounded,
-            styles["px-4"],
-            styles["py-3"],
+            componentStyles.input,
           ]}
         >
-          <Ionicons name="lock-closed-outline" size={20} color="#6B7280" />
+          <Ionicons
+            name="lock-closed-outline"
+            size={20}
+            color={colors.text.secondary}
+          />
           <TextInput
             placeholder="Password"
+            placeholderTextColor={colors.text.hint}
             secureTextEntry
             value={password}
             onChangeText={setPassword}
-            style={[styles.flex, styles["ms-3"]]}
+            style={[
+              styles.flex,
+              styles["ms-3"],
+              { color: colors.text.primary },
+            ]}
             textAlign={isRTL ? "right" : "left"}
           />
         </View>
 
         <TouchableOpacity
           onPress={handleLogin}
-          style={[
-            styles["bg-primary"],
-            styles.rounded,
-            styles["py-3"],
-            styles["items-center"],
-            styles["mt-3"],
-          ]}
+          style={[componentStyles.button, styles["mt-3"]]}
           disabled={checkingBio}
         >
-          <Text style={[styles["text-white"], styles["font-semibold"]]}>
-            Login
-          </Text>
+          <Text style={componentStyles.buttonText}>Login</Text>
         </TouchableOpacity>
 
         {hasHardware && biometricEnabled && !!savedUser && (
           <TouchableOpacity
             onPress={handleBiometricLogin}
             style={[
-              styles.border,
               styles["border-primary"],
               styles.rounded,
               styles["py-3"],
               styles["items-center"],
               styles["mt-3"],
+              { borderWidth: 1 },
             ]}
             disabled={checkingBio}
           >
-            <Text style={[styles["font-semibold"], styles["text-primary"]]}>
+            <Text
+              style={[styles["font-semibold"], styles["text-primary-color"]]}
+            >
               {`Login with ${biometricLabel}`}
             </Text>
             {!enrolled && (
               <Text
                 style={[
                   styles["text-xs"],
-                  styles["text-gray-500"],
+                  styles["text-secondary"],
                   styles["mt-1"],
                 ]}
               >
@@ -344,11 +340,11 @@ const LoginScreen = ({ navigation }) => {
             style={[
               styles["mt-4"],
               styles["p-3"],
-              styles["bg-gray-100"],
+              styles["bg-surface"],
               styles.rounded,
             ]}
           >
-            <Text style={[styles["text-xs"], styles["text-gray-600"]]}>
+            <Text style={[styles["text-xs"], styles["text-secondary"]]}>
               Debug: Hardware: {hasHardware ? "Yes" : "No"}, Enrolled:{" "}
               {enrolled ? "Yes" : "No"}, Label: {biometricLabel}
             </Text>
@@ -356,11 +352,11 @@ const LoginScreen = ({ navigation }) => {
         )}
 
         <View style={[styles["items-center"], styles["mt-4"]]}>
-          <Text style={styles["text-gray-600"]}>Don't have an account?</Text>
+          <Text style={styles["text-secondary"]}>Don't have an account?</Text>
           <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
             <Text
               style={[
-                styles["text-primary"],
+                styles["text-primary-color"],
                 styles["font-medium"],
                 styles["mt-1"],
               ]}

@@ -9,17 +9,23 @@ import {
   View,
 } from "react-native";
 import { useAppContext } from "../context/AppContext";
+import { useTheme } from "../context/ThemeContext";
 import i18n from "../utils/i18n";
-import { styles } from "../utils/styles";
 
-const FavoriteEventCard = ({ event, onPress, onRemove, isRTL }) => {
+const FavoriteEventCard = ({
+  event,
+  onPress,
+  onRemove,
+  isRTL,
+  styles,
+  colors,
+  componentStyles,
+}) => {
   return (
     <TouchableOpacity
       onPress={onPress}
       style={[
-        styles["bg-white"],
-        styles.rounded,
-        styles["shadow-sm"],
+        componentStyles.card,
         styles["mb-4"],
         styles["mx-4"],
         styles["overflow-hidden"],
@@ -44,7 +50,7 @@ const FavoriteEventCard = ({ event, onPress, onRemove, isRTL }) => {
             style={[
               styles["text-lg"],
               styles["font-semibold"],
-              styles["text-gray-800"],
+              styles["text-primary"],
               styles["flex-1"],
               isRTL ? styles["ms-2"] : styles["me-2"],
               { textAlign: isRTL ? "right" : "left" },
@@ -53,7 +59,7 @@ const FavoriteEventCard = ({ event, onPress, onRemove, isRTL }) => {
             {event.name}
           </Text>
           <TouchableOpacity onPress={onRemove}>
-            <Ionicons name="heart" size={24} color="#EF4444" />
+            <Ionicons name="heart" size={24} color={colors.error.main} />
           </TouchableOpacity>
         </View>
 
@@ -65,10 +71,10 @@ const FavoriteEventCard = ({ event, onPress, onRemove, isRTL }) => {
             isRTL && { flexDirection: "row-reverse" },
           ]}
         >
-          <Ionicons name="location" size={16} color="#6B7280" />
+          <Ionicons name="location" size={16} color={colors.text.secondary} />
           <Text
             style={[
-              styles["text-gray-600"],
+              styles["text-secondary"],
               isRTL ? styles["me-1"] : styles["ms-1"],
               { textAlign: isRTL ? "right" : "left" },
             ]}
@@ -85,10 +91,10 @@ const FavoriteEventCard = ({ event, onPress, onRemove, isRTL }) => {
             isRTL && { flexDirection: "row-reverse" },
           ]}
         >
-          <Ionicons name="calendar" size={16} color="#6B7280" />
+          <Ionicons name="calendar" size={16} color={colors.text.secondary} />
           <Text
             style={[
-              styles["text-gray-600"],
+              styles["text-secondary"],
               isRTL ? styles["me-1"] : styles["ms-1"],
               { textAlign: isRTL ? "right" : "left" },
             ]}
@@ -107,7 +113,7 @@ const FavoriteEventCard = ({ event, onPress, onRemove, isRTL }) => {
         >
           <View
             style={[
-              styles["bg-blue-100"],
+              styles["bg-info-light"],
               styles["px-2"],
               styles["py-1"],
               styles.rounded,
@@ -115,7 +121,7 @@ const FavoriteEventCard = ({ event, onPress, onRemove, isRTL }) => {
           >
             <Text
               style={[
-                styles["text-blue-800"],
+                styles["text-info"],
                 styles["text-sm"],
                 styles["font-medium"],
               ]}
@@ -127,7 +133,7 @@ const FavoriteEventCard = ({ event, onPress, onRemove, isRTL }) => {
             style={[
               styles["text-lg"],
               styles["font-bold"],
-              styles["text-green-600"],
+              styles["text-success"],
             ]}
           >
             {event.price}
@@ -140,6 +146,7 @@ const FavoriteEventCard = ({ event, onPress, onRemove, isRTL }) => {
 
 const FavoritesScreen = ({ navigation }) => {
   const { favorites, toggleFavorite, clearFavorites, isRTL } = useAppContext();
+  const { styles, colors, componentStyles } = useTheme();
 
   const handleEventPress = (event) => {
     navigation.navigate("EventDetails", { eventId: event.id });
@@ -180,20 +187,12 @@ const FavoritesScreen = ({ navigation }) => {
     <View
       style={[
         styles.flex,
-        styles["bg-gray-50"],
+        styles["bg-background"],
         isRTL ? styles.rtl : styles.ltr,
       ]}
     >
       {/* Header */}
-      <View
-        style={[
-          styles["bg-white"],
-          styles["pt-12"],
-          styles["pb-4"],
-          styles["px-4"],
-          styles["shadow-sm"],
-        ]}
-      >
+      <View style={componentStyles.header}>
         <View
           style={[
             styles["flex-row"],
@@ -205,14 +204,14 @@ const FavoritesScreen = ({ navigation }) => {
             style={[
               styles["text-2xl"],
               styles["font-bold"],
-              styles["text-gray-800"],
+              styles["text-primary"],
             ]}
           >
             {i18n.t("favorites")}
           </Text>
           {favorites.length > 0 && (
             <TouchableOpacity onPress={handleClearAll}>
-              <Text style={[styles["text-red-600"], styles["font-medium"]]}>
+              <Text style={[styles["text-error"], styles["font-medium"]]}>
                 Clear All
               </Text>
             </TouchableOpacity>
@@ -221,16 +220,7 @@ const FavoritesScreen = ({ navigation }) => {
       </View>
 
       {/* Favorites Count */}
-      <View
-        style={[
-          styles["bg-white"],
-          styles["p-4"],
-          styles["mb-4"],
-          styles["mx-4"],
-          styles.rounded,
-          styles["shadow-sm"],
-        ]}
-      >
+      <View style={[componentStyles.card, styles["m-4"]]}>
         <View
           style={[
             styles["flex-row"],
@@ -239,10 +229,10 @@ const FavoritesScreen = ({ navigation }) => {
           ]}
         >
           <View style={[styles["flex-row"], styles["items-center"]]}>
-            <Ionicons name="heart" size={24} color="#EF4444" />
+            <Ionicons name="heart" size={24} color={colors.error.main} />
             <Text
               style={[
-                styles["text-gray-800"],
+                styles["text-primary"],
                 styles["font-semibold"],
                 styles["text-lg"],
                 styles["ms-2"],
@@ -251,7 +241,7 @@ const FavoritesScreen = ({ navigation }) => {
               {favorites.length} {favorites.length === 1 ? "Event" : "Events"}
             </Text>
           </View>
-          <Text style={styles["text-gray-600"]}>
+          <Text style={styles["text-secondary"]}>
             {favorites.length === 0 ? "No favorites yet" : "Saved events"}
           </Text>
         </View>
@@ -267,6 +257,9 @@ const FavoritesScreen = ({ navigation }) => {
             onPress={() => handleEventPress(item)}
             onRemove={() => handleRemoveFavorite(item)}
             isRTL={isRTL}
+            styles={styles}
+            colors={colors}
+            componentStyles={componentStyles}
           />
         )}
         ListEmptyComponent={
@@ -278,10 +271,14 @@ const FavoritesScreen = ({ navigation }) => {
               styles["py-20"],
             ]}
           >
-            <Ionicons name="heart-outline" size={64} color="#D1D5DB" />
+            <Ionicons
+              name="heart-outline"
+              size={64}
+              color={colors.text.disabled}
+            />
             <Text
               style={[
-                styles["text-gray-500"],
+                styles["text-secondary"],
                 styles["text-lg"],
                 styles["mt-4"],
                 styles["text-center"],
@@ -291,7 +288,7 @@ const FavoritesScreen = ({ navigation }) => {
             </Text>
             <Text
               style={[
-                styles["text-gray-400"],
+                styles["text-hint"],
                 styles["text-sm"],
                 styles["mt-2"],
                 styles["text-center"],
@@ -301,17 +298,9 @@ const FavoritesScreen = ({ navigation }) => {
             </Text>
             <TouchableOpacity
               onPress={() => navigation.navigate("Home")}
-              style={[
-                styles["bg-primary"],
-                styles["px-6"],
-                styles["py-3"],
-                styles.rounded,
-                styles["mt-6"],
-              ]}
+              style={componentStyles.button}
             >
-              <Text style={[styles["text-white"], styles["font-semibold"]]}>
-                Explore Events
-              </Text>
+              <Text style={componentStyles.buttonText}>Explore Events</Text>
             </TouchableOpacity>
           </View>
         }

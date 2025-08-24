@@ -13,14 +13,15 @@ import {
   View,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import { eventService } from "../bridge/services";
 import { useAppContext } from "../context/AppContext";
-import { getEventById } from "../utils/api";
+import { useTheme } from "../context/ThemeContext";
 import i18n from "../utils/i18n";
-import { colors, styles } from "../utils/styles";
 
 const EventDetailsScreen = ({ route, navigation }) => {
   const { eventId } = route.params;
   const { toggleFavorite, isFavorite, isRTL } = useAppContext();
+  const { styles, colors, componentStyles } = useTheme();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -30,8 +31,12 @@ const EventDetailsScreen = ({ route, navigation }) => {
 
   const loadEvent = async () => {
     try {
-      const eventData = await getEventById(eventId);
-      setEvent(eventData || null);
+      const result = await eventService.getEventById(eventId);
+      if (result.success) {
+        setEvent(result.data || null);
+      } else {
+        throw new Error(result.error);
+      }
     } catch (error) {
       console.error("Error loading event:", error);
       Alert.alert(i18n.t("error"), "Failed to load event details");
@@ -93,13 +98,13 @@ const EventDetailsScreen = ({ route, navigation }) => {
       <View
         style={[
           styles.flex,
-          styles["bg-gray-50"],
+          styles["bg-background"],
           styles["justify-center"],
           styles["items-center"],
         ]}
       >
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={[styles["text-gray-600"], styles["mt-4"]]}>
+        <ActivityIndicator size="large" color={colors.primary.main} />
+        <Text style={[styles["text-secondary"], styles["mt-4"]]}>
           {i18n.t("loading")}
         </Text>
       </View>
@@ -111,15 +116,15 @@ const EventDetailsScreen = ({ route, navigation }) => {
       <View
         style={[
           styles.flex,
-          styles["bg-gray-50"],
+          styles["bg-background"],
           styles["justify-center"],
           styles["items-center"],
         ]}
       >
-        <Ionicons name="alert-circle" size={64} color="#EF4444" />
+        <Ionicons name="alert-circle" size={64} color={colors.error.main} />
         <Text
           style={[
-            styles["text-gray-600"],
+            styles["text-secondary"],
             styles["mt-4"],
             styles["text-center"],
           ]}
@@ -134,20 +139,12 @@ const EventDetailsScreen = ({ route, navigation }) => {
     <View
       style={[
         styles.flex,
-        styles["bg-gray-50"],
+        styles["bg-background"],
         isRTL ? styles.rtl : styles.ltr,
       ]}
     >
       {/* Header */}
-      <View
-        style={[
-          styles["bg-white"],
-          styles["pt-12"],
-          styles["pb-4"],
-          styles["px-4"],
-          styles["shadow-sm"],
-        ]}
-      >
+      <View style={componentStyles.header}>
         <View
           style={[
             styles["flex-row"],
@@ -159,20 +156,24 @@ const EventDetailsScreen = ({ route, navigation }) => {
             <Ionicons
               name={isRTL ? "arrow-forward" : "arrow-back"}
               size={24}
-              color="#374151"
+              color={colors.text.primary}
             />
           </TouchableOpacity>
           <Text
             style={[
               styles["text-xl"],
               styles["font-bold"],
-              styles["text-gray-800"],
+              styles["text-primary"],
             ]}
           >
             {i18n.t("eventDetails")}
           </Text>
           <TouchableOpacity onPress={handleShare}>
-            <Ionicons name="share-outline" size={24} color="#374151" />
+            <Ionicons
+              name="share-outline"
+              size={24}
+              color={colors.text.primary}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -186,7 +187,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
         />
 
         {/* Event Info */}
-        <View style={[styles["bg-white"], styles["p-6"]]}>
+        <View style={[componentStyles.card, styles["p-6"]]}>
           {/* Title and Favorite */}
           <View
             style={[
@@ -200,7 +201,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
               style={[
                 styles["text-2xl"],
                 styles["font-bold"],
-                styles["text-gray-800"],
+                styles["text-primary"],
                 styles["flex-1"],
                 styles["me-4"],
               ]}
@@ -211,7 +212,11 @@ const EventDetailsScreen = ({ route, navigation }) => {
               <Ionicons
                 name={isFavorite(event.id) ? "heart" : "heart-outline"}
                 size={32}
-                color={isFavorite(event.id) ? "#EF4444" : "#6B7280"}
+                color={
+                  isFavorite(event.id)
+                    ? colors.error.main
+                    : colors.text.secondary
+                }
               />
             </TouchableOpacity>
           </View>
@@ -227,7 +232,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
               styles["mb-4"],
             ]}
           >
-            <Text style={[styles["text-primary-dark"], styles["font-medium"]]}>
+            <Text style={[styles["text-primary-color"], styles["font-medium"]]}>
               {event.category}
             </Text>
           </View>
@@ -238,21 +243,23 @@ const EventDetailsScreen = ({ route, navigation }) => {
             <View style={[styles["flex-row"], styles["items-center"]]}>
               <View
                 style={[
-                  styles["bg-gray-100"],
+                  styles["bg-surface"],
                   styles["p-3"],
                   styles.rounded,
                   styles["me-4"],
                 ]}
               >
-                <Ionicons name="calendar" size={24} color={colors.primary} />
+                <Ionicons
+                  name="calendar"
+                  size={24}
+                  color={colors.primary.main}
+                />
               </View>
               <View>
-                <Text style={[styles["text-gray-600"], styles["text-sm"]]}>
+                <Text style={[styles["text-secondary"], styles["text-sm"]]}>
                   {i18n.t("date")}
                 </Text>
-                <Text
-                  style={[styles["text-gray-800"], styles["font-semibold"]]}
-                >
+                <Text style={[styles["text-primary"], styles["font-semibold"]]}>
                   {event.date}
                 </Text>
               </View>
@@ -261,21 +268,19 @@ const EventDetailsScreen = ({ route, navigation }) => {
             <View style={[styles["flex-row"], styles["items-center"]]}>
               <View
                 style={[
-                  styles["bg-gray-100"],
+                  styles["bg-surface"],
                   styles["p-3"],
                   styles.rounded,
                   styles["me-4"],
                 ]}
               >
-                <Ionicons name="time" size={24} color={colors.primary} />
+                <Ionicons name="time" size={24} color={colors.primary.main} />
               </View>
               <View>
-                <Text style={[styles["text-gray-600"], styles["text-sm"]]}>
+                <Text style={[styles["text-secondary"], styles["text-sm"]]}>
                   {i18n.t("time")}
                 </Text>
-                <Text
-                  style={[styles["text-gray-800"], styles["font-semibold"]]}
-                >
+                <Text style={[styles["text-primary"], styles["font-semibold"]]}>
                   {event.time}
                 </Text>
               </View>
@@ -285,21 +290,23 @@ const EventDetailsScreen = ({ route, navigation }) => {
             <View style={[styles["flex-row"], styles["items-center"]]}>
               <View
                 style={[
-                  styles["bg-gray-100"],
+                  styles["bg-surface"],
                   styles["p-3"],
                   styles.rounded,
                   styles["me-4"],
                 ]}
               >
-                <Ionicons name="location" size={24} color={colors.primary} />
+                <Ionicons
+                  name="location"
+                  size={24}
+                  color={colors.primary.main}
+                />
               </View>
               <View>
-                <Text style={[styles["text-gray-600"], styles["text-sm"]]}>
+                <Text style={[styles["text-secondary"], styles["text-sm"]]}>
                   {i18n.t("venue")}
                 </Text>
-                <Text
-                  style={[styles["text-gray-800"], styles["font-semibold"]]}
-                >
+                <Text style={[styles["text-primary"], styles["font-semibold"]]}>
                   {event.venue}, {event.city}
                 </Text>
               </View>
@@ -309,26 +316,26 @@ const EventDetailsScreen = ({ route, navigation }) => {
             <View style={[styles["flex-row"], styles["items-center"]]}>
               <View
                 style={[
-                  styles["bg-gray-100"],
+                  styles["bg-surface"],
                   styles["p-3"],
                   styles.rounded,
                   styles["me-4"],
                 ]}
               >
-                <Ionicons name="card" size={24} color={colors.primary} />
+                <Ionicons name="card" size={24} color={colors.primary.main} />
               </View>
               <View>
-                <Text style={[styles["text-gray-600"], styles["text-sm"]]}>
+                <Text style={[styles["text-secondary"], styles["text-sm"]]}>
                   {i18n.t("price")}
                 </Text>
                 <Text
                   style={[
-                    styles["text-green-600"],
+                    styles["text-success"],
                     styles["font-bold"],
                     styles["text-lg"],
                   ]}
                 >
-                  {event.price}
+                  {event.price || "0.00"}
                 </Text>
               </View>
             </View>
@@ -338,14 +345,14 @@ const EventDetailsScreen = ({ route, navigation }) => {
           <View style={styles["mt-6"]}>
             <Text
               style={[
-                styles["text-gray-600"],
+                styles["text-secondary"],
                 styles["text-sm"],
                 styles["mb-2"],
               ]}
             >
               {i18n.t("description")}
             </Text>
-            <Text style={[styles["text-gray-800"], styles["leading-6"]]}>
+            <Text style={[styles["text-primary"], styles["leading-6"]]}>
               {event.description}
             </Text>
           </View>
@@ -359,7 +366,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
                 styles.rounded,
                 styles["items-center"],
                 isFavorite(event.id)
-                  ? [styles.border, styles["border-red-300"]]
+                  ? [styles.border, { borderColor: colors.error.light }]
                   : styles["bg-primary"],
               ]}
             >
@@ -368,7 +375,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
                   styles["font-semibold"],
                   styles["text-lg"],
                   isFavorite(event.id)
-                    ? styles["text-red-700"]
+                    ? styles["text-error"]
                     : styles["text-white"],
                 ]}
               >
@@ -381,7 +388,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
             <TouchableOpacity
               onPress={handleDirections}
               style={[
-                styles["bg-gray-100"],
+                styles["bg-surface"],
                 styles["py-4"],
                 styles.rounded,
                 styles["items-center"],
@@ -390,7 +397,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
             >
               <Text
                 style={[
-                  styles["text-gray-700"],
+                  styles["text-primary"],
                   styles["font-semibold"],
                   styles["text-lg"],
                 ]}
