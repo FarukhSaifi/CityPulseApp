@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#5B3CFB"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "bundleIdentifier": "com.farukhsaifi.citypulse",
       "supportsTablet": true,
@@ -29,7 +31,10 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-localization"],
+    "plugins": [
+      "expo-localization",
+      "expo-font"
+    ],
     "extra": {
       "eas": {
         "projectId": "a8c12114-3378-4972-97eb-f5e7e8bdedae"

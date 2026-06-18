@@ -36,4 +36,6 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-package-lock.json
+# generated native projects (EAS runs prebuild on the server)
+/android
+/ios
