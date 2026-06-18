@@ -6,14 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#5B3CFB"
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "bundleIdentifier": "com.farukhsaifi.citypulse",
       "supportsTablet": true,
@@ -35,7 +28,16 @@
     "plugins": [
       "expo-localization",
       "expo-font",
-      "expo-asset"
+      "expo-asset",
+      "expo-status-bar",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#5B3CFB"
+        }
+      ]
     ],
     "extra": {
       "eas": {
