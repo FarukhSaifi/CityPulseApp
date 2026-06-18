@@ -17,6 +17,7 @@
     "@react-navigation/native": "^6.1.16",
     "@react-navigation/stack": "^6.4.1",
     "expo": "~53.0.20",
+    "expo-asset": "~11.1.7",
     "expo-font": "~13.3.2",
     "expo-linear-gradient": "~14.1.5",
     "expo-local-authentication": "~16.0.5",
