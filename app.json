@@ -11,16 +11,16 @@
       "resizeMode": "contain",
       "backgroundColor": "#5B3CFB"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
+      "bundleIdentifier": "com.farukhsaifi.citypulse",
       "supportsTablet": true,
       "infoPlist": {
         "NSFaceIDUsageDescription": "City Pulse uses Face ID to quickly and securely log you in."
       }
     },
     "android": {
+      "package": "com.farukhsaifi.citypulse",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#5B3CFB"
@@ -29,9 +29,7 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-localization"
-    ],
+    "plugins": ["expo-localization"],
     "extra": {
       "eas": {
         "projectId": "a8c12114-3378-4972-97eb-f5e7e8bdedae"
