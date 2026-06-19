@@ -1,7 +1,9 @@
+import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "firebase/app";
 import {
   createUserWithEmailAndPassword,
-  getAuth,
+  getReactNativePersistence,
+  initializeAuth,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
@@ -23,25 +25,53 @@ import {
 import { getFirebaseErrorMessage } from "./firebaseErrorHandler";
 
 // Firebase configuration
-import { firebaseConfig } from "../../config/firebaseConfig";
+import { firebaseConfig, isFirebaseConfigured } from "../../config/firebaseConfig";
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const FIREBASE_NOT_CONFIGURED = {
+  success: false,
+  error: "Firebase is not configured. Add your web app credentials to .env (see FIREBASE_SETUP.md).",
+};
 
-// Initialize Firebase services
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+const stubAuth = {
+  currentUser: null,
+  onAuthStateChanged(callback) {
+    callback(null);
+    return () => {};
+  },
+};
+
+let app;
+let auth = stubAuth;
+let db = null;
+export const isFirebaseReady = () => isFirebaseConfigured() && !!app;
+
+if (isFirebaseConfigured()) {
+  try {
+    app = initializeApp(firebaseConfig);
+    auth = initializeAuth(app, {
+      persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+    });
+    db = getFirestore(app);
+  } catch (initError) {
+    auth = stubAuth;
+    db = null;
+    console.warn("Firebase init failed:", initError?.message);
+  }
+} else {
+  console.warn("Firebase not configured — add EXPO_PUBLIC_FIREBASE_API_KEY to .env (see FIREBASE_SETUP.md)");
+}
+
+export { auth, db };
 
 // Authentication functions
 export const firebaseAuth = {
   // Sign up with email and password
   async signUp(email, password, displayName) {
+    if (!isFirebaseReady()) {
+      return FIREBASE_NOT_CONFIGURED;
+    }
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
       // Update profile with display name
@@ -74,12 +104,11 @@ export const firebaseAuth = {
 
   // Sign in with email and password
   async signIn(email, password) {
+    if (!isFirebaseReady()) {
+      return FIREBASE_NOT_CONFIGURED;
+    }
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       return { success: true, user: userCredential.user };
     } catch (error) {
       console.error("Firebase signin error:", error);
@@ -92,6 +121,9 @@ export const firebaseAuth = {
 
   // Sign out
   async signOut() {
+    if (!isFirebaseReady()) {
+      return FIREBASE_NOT_CONFIGURED;
+    }
     try {
       await signOut(auth);
       return { success: true };
@@ -212,9 +244,7 @@ export const firestore = {
           const userData = userDoc.data();
           const favorites = userData.favorites || [];
 
-          const updatedFavorites = favorites.filter(
-            (fav) => fav.id !== eventId
-          );
+          const updatedFavorites = favorites.filter((fav) => fav.id !== eventId);
           await updateDoc(doc(db, "users", userId), {
             favorites: updatedFavorites,
           });
@@ -262,11 +292,7 @@ export const firestore = {
     // Get user-created events
     async getUserEvents(userId) {
       try {
-        const q = query(
-          collection(db, "events"),
-          where("createdBy", "==", userId),
-          orderBy("createdAt", "desc")
-        );
+        const q = query(collection(db, "events"), where("createdBy", "==", userId), orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
         const events = [];
         querySnapshot.forEach((doc) => {

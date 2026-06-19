@@ -1,7 +1,7 @@
 // Firebase Services Index
 // This file exports all Firebase-related services and utilities
 
-export { auth, db, firebaseAuth, firestore } from "./firebase";
+export { auth, db, firebaseAuth, firestore, isFirebaseReady } from "./firebase";
 
 // Export error handling utilities
 export {

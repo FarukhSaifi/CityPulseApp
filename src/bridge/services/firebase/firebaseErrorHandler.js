@@ -17,11 +17,14 @@ export const firebaseErrorCodes = {
   "auth/invalid-email": "Please enter a valid email address",
   "auth/too-many-requests": "Too many failed attempts. Please try again later",
   "auth/network-request-failed": "Network error. Please check your connection",
+  "auth/invalid-api-key":
+    "Firebase is not configured. Copy .env.example to .env and add your Firebase web app credentials. See FIREBASE_SETUP.md.",
+  "auth/api-key-not-valid":
+    "Firebase API key is invalid. Update EXPO_PUBLIC_FIREBASE_API_KEY in .env from Firebase Console. See FIREBASE_SETUP.md.",
 
   // Firestore errors
   "permission-denied": "Access denied. Please check your permissions",
-  "missing-or-insufficient-permissions":
-    "Access denied. Please check your permissions",
+  "missing-or-insufficient-permissions": "Access denied. Please check your permissions",
   unavailable: "Service temporarily unavailable. Please try again",
   "deadline-exceeded": "Request timed out. Please try again",
   "resource-exhausted": "Service quota exceeded. Please try again later",
@@ -65,23 +68,14 @@ export const shouldFallbackToLocal = (error) => {
   if (!error) return false;
 
   // Fallback for network-related errors
-  const networkErrors = [
-    "auth/network-request-failed",
-    "unavailable",
-    "deadline-exceeded",
-    "resource-exhausted",
-  ];
+  const networkErrors = ["auth/network-request-failed", "unavailable", "deadline-exceeded", "resource-exhausted"];
 
   if (error.code && networkErrors.includes(error.code)) {
     return true;
   }
 
   // Fallback for permission errors (user might not be properly authenticated or rules are misconfigured)
-  const permissionErrors = [
-    "permission-denied",
-    "unauthenticated",
-    "missing-or-insufficient-permissions",
-  ];
+  const permissionErrors = ["permission-denied", "unauthenticated", "missing-or-insufficient-permissions"];
 
   if (error.code && permissionErrors.includes(error.code)) {
     return true;
@@ -120,9 +114,7 @@ export const logFirebaseError = (operation, error, context = {}) => {
     ) {
       console.warn("🔒 Permission Error Detected!");
       console.warn("This usually means:");
-      console.warn(
-        "1. Firestore security rules are not set in Firebase Console"
-      );
+      console.warn("1. Firestore security rules are not set in Firebase Console");
       console.warn("2. User is not properly authenticated");
       console.warn("3. Security rules are too restrictive");
       console.warn("Check your Firebase Console > Firestore > Rules");
@@ -151,12 +143,7 @@ export const logFirebaseError = (operation, error, context = {}) => {
   return errorInfo;
 };
 
-export const handleFirebaseOperation = async (
-  operation,
-  firebaseFunction,
-  fallbackFunction,
-  context = {}
-) => {
+export const handleFirebaseOperation = async (operation, firebaseFunction, fallbackFunction, context = {}) => {
   try {
     const result = await firebaseFunction();
     return { success: true, data: result, source: "firebase" };
@@ -175,10 +162,7 @@ export const handleFirebaseOperation = async (
           originalError: errorInfo,
         };
       } catch (fallbackError) {
-        console.error(
-          `❌ Fallback operation failed: ${operation}`,
-          fallbackError
-        );
+        console.error(`❌ Fallback operation failed: ${operation}`, fallbackError);
         return {
           success: false,
           error: getFirebaseErrorMessage(error),
